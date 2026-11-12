@@ -10,7 +10,7 @@
 | Phase 5 — Project Repository & Similarity Detection | PASSED | 2026-11-12 | 7ce33ad |
 | Phase 6 — Communication & Document Library | PASSED | 2026-11-12 | cd05ea9 |
 | Phase 7 — Reports, Accreditation, Dashboards | PASSED | 2026-11-12 | 5ca6ea7 |
-| Phase 8 — Hardening, seed data, docs, packaging | NOT STARTED | - | - |
+| Phase 8 — Hardening, seed data, docs, packaging | PASSED | 2026-11-12 | 19a4f20 |
 | Phase 9 — Deployment (Optional) | PREPARED, NOT EXECUTED | - | - |
 | Phase 10 — AI Knowledge Assistant (RAG) | NOT STARTED | - | - |
 
@@ -327,6 +327,33 @@ How to verify by hand:
    - CO-PO Attainment Calculation (XLSX) for CS501
    - Student Comprehensive Progress Report (PDF)
 6. Login as `student01@demo.local` with `Demo@12345`. Open `http://localhost:3000/reports` and click "Download Progress Report (PDF)" to verify student self-service report card download.
+
+---
+
+## Phase 8 — Hardening, seed data, docs, packaging — PASSED
+Built:
+- OpenAPI JSON specification: Generated `docs/openapi.json` (186 kB) via `drf-spectacular` covering all 8 modular apps.
+- Operations Runbook (`docs/RUNBOOK.md`): End-to-end evaluation guide, quickstart instructions, port conflict mitigation, and troubleshooting procedures.
+- Complete API Documentation (`docs/API.md`): Detailed REST endpoint index across all authentication, academic, insight, project, communication, report, and system health routes.
+- Comprehensive `README.md`: B.Tech final-year project documentation with one-command setup, demo login matrix with 5 quick-fill presets, module catalog, and architecture overview.
+- Environment Templates: `backend/.env.example` and `frontend/.env.example` configurations.
+- Submission Packaging Automation (`scripts/make_zip.ps1`): Verified automated creation of clean 0.48 MB `submission.zip` stripped of node_modules, virtual environments, build artifacts, databases, and sensitive logs.
+
+Commands run & results:
+- `python manage.py spectacular --file docs/openapi.json` → Generated `docs/openapi.json` (186 KB)
+- `powershell -ExecutionPolicy Bypass -File scripts/make_zip.ps1` → Submission ZIP created successfully (0.48 MB)
+- `.venv\Scripts\python.exe -m pytest -v` → 58 passed in 104.70s
+- `npm run lint` → ✔ No ESLint warnings or errors
+- `npm run build` → 27 static routes compiled successfully, all First Load JS bundles ≤ 136 kB (budget ≤ 170 kB)
+
+Tests: 58 backend tests passed, frontend TypeScript and ESLint 0 errors, production build passed.
+Not implemented / partial: None for Phase 8.
+Assumptions added: None new (AMP-001 through AMP-010 apply).
+
+How to verify by hand:
+1. Run `powershell -ExecutionPolicy Bypass -File scripts/make_zip.ps1` and verify that `submission.zip` is produced cleanly with size < 5 MB.
+2. Open `docs/openapi.json` or query `http://127.0.0.1:8000/api/docs/` to inspect the complete OpenAPI documentation.
+3. Review `docs/RUNBOOK.md` and verify all setup and troubleshooting instructions.
 
 
 
