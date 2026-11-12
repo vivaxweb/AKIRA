@@ -308,18 +308,18 @@ export default function AccreditationPage() {
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-3">
-                        <span className="px-2.5 py-1 bg-slate-900 text-white font-mono text-xs font-bold rounded-lg mt-0.5">
+                      <div className="flex items-start gap-3 min-w-0">
+                        <span className="px-2.5 py-1 bg-slate-900 text-white font-mono text-xs font-bold rounded-lg mt-0.5 shrink-0">
                           {crit.code}
                         </span>
-                        <div>
-                          <h3 className="text-sm font-semibold text-slate-900">{crit.title}</h3>
+                        <div className="min-w-0">
+                          <h3 className="text-sm font-semibold text-slate-900 truncate">{crit.title}</h3>
                           <p className="text-xs text-slate-500 mt-1 line-clamp-2">
                             {crit.description}
                           </p>
                         </div>
                       </div>
-                      <div>{getStatusBadge(crit.status)}</div>
+                      <div className="shrink-0">{getStatusBadge(crit.status)}</div>
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">

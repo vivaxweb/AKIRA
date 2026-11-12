@@ -271,7 +271,7 @@ export default function MarksPage() {
       {/* STUDENT VIEW */}
       {user?.role === "STUDENT" && (
         <Card className="p-6 max-w-xl">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle>{currentSubject?.name || "Subject Marks"}</CardTitle>
             <span className="text-xs font-mono text-slate-500">{currentSubject?.code}</span>
           </CardHeader>

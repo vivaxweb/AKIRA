@@ -232,7 +232,7 @@ export default function AttendancePage() {
       ) : user?.role === "STUDENT" ? (
         <div className="space-y-6 max-w-xl">
           <Card className="p-6">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <div>
                 <CardTitle>{currentSubject?.name || "Subject"}</CardTitle>
                 <p className="text-xs text-slate-500 font-mono mt-0.5">{currentSubject?.code}</p>

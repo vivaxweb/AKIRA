@@ -6,6 +6,7 @@ Populates full academic dataset for B.Tech CSE Department (TKIET 2026-27).
 import random
 from datetime import date, timedelta
 from decimal import Decimal
+from django.db import models
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from apps.accounts.models import Department, User, StudentProfile, FacultyProfile
@@ -86,7 +87,7 @@ class Command(BaseCommand):
             FacultyProfile.objects.all().delete()
             ClassGroup.objects.all().delete()
             ProgramOutcome.objects.all().delete()
-            User.objects.filter(email__endswith="@demo.local").delete()
+            User.objects.filter(models.Q(email__endswith="@demo.local") | models.Q(email__endswith="@tkietwarana.ac.in")).delete()
             Department.objects.filter(code__in=["CSE", "MECH"]).delete()
             self.stdout.write(self.style.SUCCESS("Purge complete."))
 
@@ -119,45 +120,158 @@ class Command(BaseCommand):
                 defaults={"title": po_title, "description": po_desc},
             )
 
-        # 3. Staff accounts: Principal, HOD, Faculty, Coordinator
+        # 3. Staff accounts: Principal, HOD, Coordinator, Faculty members
         principal, _ = User.objects.get_or_create(
             email="principal@demo.local",
-            defaults={"first_name": "Demo", "last_name": "Principal", "role": User.Role.PRINCIPAL, "is_staff": True},
+            defaults={"first_name": "Dr. D. N.", "last_name": "Mudgal", "role": User.Role.PRINCIPAL, "is_staff": True},
         )
         principal.set_password(demo_password)
         principal.save()
 
+        # HOD: Dr. Patil Ramgouda. B.
         hod, _ = User.objects.get_or_create(
-            email="hod@demo.local",
-            defaults={"first_name": "Demo", "last_name": "HOD CSE", "role": User.Role.HOD, "department": cse_dept, "is_staff": True},
+            email="hodcse@tkietwarana.ac.in",
+            defaults={
+                "first_name": "Ramgouda",
+                "last_name": "Patil",
+                "role": User.Role.HOD,
+                "department": cse_dept,
+                "phone": "9975419483",
+                "is_staff": True,
+            },
         )
+        hod.first_name = "Ramgouda"
+        hod.last_name = "Patil"
+        hod.phone = "9975419483"
         hod.set_password(demo_password)
         hod.save()
-        FacultyProfile.objects.get_or_create(user=hod, defaults={"employee_id": "EMP-CSE-HOD", "designation": "Professor & HOD"})
-
-        faculty_members = []
-        faculty_meta = [
-            ("faculty1@demo.local", "Faculty", "One", "EMP-CSE-001", "Associate Professor"),
-            ("faculty2@demo.local", "Faculty", "Two", "EMP-CSE-002", "Assistant Professor"),
-            ("faculty3@demo.local", "Faculty", "Three", "EMP-CSE-003", "Assistant Professor"),
-        ]
-        for email, fn, ln, emp_id, desig in faculty_meta:
-            f_user, _ = User.objects.get_or_create(
-                email=email,
-                defaults={"first_name": fn, "last_name": ln, "role": User.Role.FACULTY, "department": cse_dept},
-            )
-            f_user.set_password(demo_password)
-            f_user.save()
-            FacultyProfile.objects.get_or_create(user=f_user, defaults={"employee_id": emp_id, "designation": desig})
-            faculty_members.append(f_user)
-
-        coordinator, _ = User.objects.get_or_create(
-            email="coordinator@demo.local",
-            defaults={"first_name": "Demo", "last_name": "Coordinator", "role": User.Role.COORDINATOR, "department": cse_dept},
+        FacultyProfile.objects.update_or_create(
+            user=hod,
+            defaults={"employee_id": "EMP-CSE-HOD", "designation": "Associate Professor and Head"},
         )
+
+        # Legacy alias for HOD for evaluator and test convenience
+        legacy_hod, _ = User.objects.get_or_create(
+            email="hod@demo.local",
+            defaults={
+                "first_name": "Ramgouda",
+                "last_name": "Patil",
+                "role": User.Role.HOD,
+                "department": cse_dept,
+                "phone": "9975419483",
+                "is_staff": True,
+            },
+        )
+        legacy_hod.first_name = "Ramgouda"
+        legacy_hod.last_name = "Patil"
+        legacy_hod.phone = "9975419483"
+        legacy_hod.set_password(demo_password)
+        legacy_hod.save()
+        FacultyProfile.objects.update_or_create(
+            user=legacy_hod,
+            defaults={"employee_id": "EMP-CSE-HOD-DEMO", "designation": "Associate Professor and Head"},
+        )
+
+        # Class Coordinator: Prof. Phalle Anil S.
+        coordinator, _ = User.objects.get_or_create(
+            email="asphalle@tkietwarana.ac.in",
+            defaults={
+                "first_name": "Anil",
+                "last_name": "Phalle",
+                "role": User.Role.COORDINATOR,
+                "department": cse_dept,
+                "phone": "9764638007",
+            },
+        )
+        coordinator.first_name = "Anil"
+        coordinator.last_name = "Phalle"
+        coordinator.phone = "9764638007"
         coordinator.set_password(demo_password)
         coordinator.save()
-        FacultyProfile.objects.get_or_create(user=coordinator, defaults={"employee_id": "EMP-CSE-COORD", "designation": "Assistant Professor & Coordinator"})
+        FacultyProfile.objects.update_or_create(
+            user=coordinator,
+            defaults={"employee_id": "EMP-CSE-COORD", "designation": "Associate Professor & Coordinator"},
+        )
+
+        legacy_coord, _ = User.objects.get_or_create(
+            email="coordinator@demo.local",
+            defaults={
+                "first_name": "Anil",
+                "last_name": "Phalle",
+                "role": User.Role.COORDINATOR,
+                "department": cse_dept,
+                "phone": "9764638007",
+            },
+        )
+        legacy_coord.first_name = "Anil"
+        legacy_coord.last_name = "Phalle"
+        legacy_coord.phone = "9764638007"
+        legacy_coord.set_password(demo_password)
+        legacy_coord.save()
+        FacultyProfile.objects.update_or_create(
+            user=legacy_coord,
+            defaults={"employee_id": "EMP-CSE-COORD-DEMO", "designation": "Associate Professor & Coordinator"},
+        )
+
+        # Real CSE Faculty Roster
+        # (email, first_name, last_name, employee_id, designation, phone)
+        faculty_meta = [
+            ("amol_patil@tkietwarana.ac.in", "Amol", "Patil", "EMP-CSE-001", "Assistant Professor", "9822558270"),
+            ("srarlimatti@tkietwarana.ac.in", "Shivaleela", "Arlimatti", "EMP-CSE-002", "Professor", ""),
+            ("dineshmirajkar@tkietwarana.ac.in", "Dinesh", "Mirajkar", "EMP-CSE-003", "Assistant Professor", "9225819159"),
+            ("bsmagadum@tkietwarana.ac.in", "Bhagyashree", "Chougule", "EMP-CSE-004", "Assistant Professor", "8698248242"),
+            ("huchchayyakelur@tkietwarana.ac.in", "Huchchayya", "Kelur", "EMP-CSE-005", "Assistant Professor", "8861253637"),
+            ("vnpatil@tkietwarana.ac.in", "Vaibhav", "Patil", "EMP-CSE-006", "Assistant Professor", "9970985255"),
+            ("knkamble@tkietwarana.ac.in", "Kanishka", "Kamble", "EMP-CSE-007", "Assistant Professor", "9922095130"),
+            ("iitamboli@tkietwarana.ac.in", "Imran", "Tamboli", "EMP-CSE-008", "Assistant Professor", "9881748648"),
+        ]
+
+        faculty_members = []
+        for email, fn, ln, emp_id, desig, phone in faculty_meta:
+            f_user, _ = User.objects.get_or_create(
+                email=email,
+                defaults={"first_name": fn, "last_name": ln, "role": User.Role.FACULTY, "department": cse_dept, "phone": phone},
+            )
+            f_user.first_name = fn
+            f_user.last_name = ln
+            f_user.phone = phone
+            f_user.set_password(demo_password)
+            f_user.save()
+            FacultyProfile.objects.update_or_create(user=f_user, defaults={"employee_id": emp_id, "designation": desig})
+            faculty_members.append(f_user)
+
+        # Legacy aliases for faculty1, faculty2, faculty3 for compatibility
+        legacy_f1, _ = User.objects.get_or_create(
+            email="faculty1@demo.local",
+            defaults={"first_name": "Amol", "last_name": "Patil", "role": User.Role.FACULTY, "department": cse_dept, "phone": "9822558270"},
+        )
+        legacy_f1.first_name = "Amol"
+        legacy_f1.last_name = "Patil"
+        legacy_f1.phone = "9822558270"
+        legacy_f1.set_password(demo_password)
+        legacy_f1.save()
+        FacultyProfile.objects.update_or_create(user=legacy_f1, defaults={"employee_id": "EMP-CSE-001-DEMO", "designation": "Assistant Professor"})
+
+        legacy_f2, _ = User.objects.get_or_create(
+            email="faculty2@demo.local",
+            defaults={"first_name": "Shivaleela", "last_name": "Arlimatti", "role": User.Role.FACULTY, "department": cse_dept},
+        )
+        legacy_f2.first_name = "Shivaleela"
+        legacy_f2.last_name = "Arlimatti"
+        legacy_f2.set_password(demo_password)
+        legacy_f2.save()
+        FacultyProfile.objects.update_or_create(user=legacy_f2, defaults={"employee_id": "EMP-CSE-002-DEMO", "designation": "Professor"})
+
+        legacy_f3, _ = User.objects.get_or_create(
+            email="faculty3@demo.local",
+            defaults={"first_name": "Dinesh", "last_name": "Mirajkar", "role": User.Role.FACULTY, "department": cse_dept, "phone": "9225819159"},
+        )
+        legacy_f3.first_name = "Dinesh"
+        legacy_f3.last_name = "Mirajkar"
+        legacy_f3.phone = "9225819159"
+        legacy_f3.set_password(demo_password)
+        legacy_f3.save()
+        FacultyProfile.objects.update_or_create(user=legacy_f3, defaults={"employee_id": "EMP-CSE-003-DEMO", "designation": "Assistant Professor"})
 
         # 4. Class Groups
         te_cse_a, _ = ClassGroup.objects.get_or_create(
@@ -200,11 +314,11 @@ class Command(BaseCommand):
         # 6. Subjects (6 subjects)
         subjects_data = [
             ("CS501", "Database Management Systems", te_cse_a, faculty_members[0], 4),
-            ("CS502", "Computer Networks", te_cse_a, faculty_members[1], 4),
-            ("CS503", "Theory of Computation", te_cse_a, coordinator, 3),
-            ("CS504", "Advanced Java Programming", te_cse_a, faculty_members[0], 3),
-            ("CS701", "Cloud Computing", be_cse_a, faculty_members[1], 4),
-            ("CS702", "Artificial Intelligence", be_cse_a, faculty_members[2], 4),
+            ("CS502", "Computer Networks", te_cse_a, faculty_members[2], 4),
+            ("CS503", "Theory of Computation", te_cse_a, faculty_members[4], 3),
+            ("CS504", "Advanced Java Programming", te_cse_a, coordinator, 3),
+            ("CS701", "Cloud Computing", be_cse_a, faculty_members[5], 4),
+            ("CS702", "Artificial Intelligence", be_cse_a, faculty_members[1], 4),
         ]
         created_subjects = []
         for code, name, cg, fac, cred in subjects_data:
@@ -453,7 +567,7 @@ class Command(BaseCommand):
                 "abstract": "Smart contract architecture enabling residential solar prosumers to auction excess photovoltaic energy peer-to-peer. Implements automated settlement using ERC-20 tokens with cryptographic micro-inverter verification.",
                 "domain": "Blockchain",
                 "batch_year": 2026,
-                "guide": faculty_members[1],
+                "guide": faculty_members[2],
                 "leader": students[3].user,
                 "members": [students[4].user],
                 "status": Project.Status.IN_PROGRESS,
@@ -467,7 +581,7 @@ class Command(BaseCommand):
                 "abstract": "Dynamic traffic signal timing controller driven by real-time vehicle density estimation using YOLOv8 computer vision. Deep Q-learning agents coordinate adjacent intersection green lights to minimize average queue wait times.",
                 "domain": "Computer Vision",
                 "batch_year": 2026,
-                "guide": faculty_members[2],
+                "guide": faculty_members[3],
                 "leader": students[5].user,
                 "members": [students[6].user, students[7].user],
                 "status": Project.Status.APPROVED,
@@ -481,7 +595,7 @@ class Command(BaseCommand):
                 "abstract": "Static and runtime security verification pipeline for Kubernetes and Terraform infrastructure. Uses Rego policies with Open Policy Agent (OPA) to enforce CIS benchmarks and automated vulnerability drift scanning.",
                 "domain": "Cloud Computing",
                 "batch_year": 2025,
-                "guide": faculty_members[0],
+                "guide": faculty_members[1],
                 "leader": students[8].user,
                 "members": [students[9].user],
                 "status": Project.Status.COMPLETED,
@@ -495,7 +609,7 @@ class Command(BaseCommand):
                 "abstract": "Low-power ESP32 and cellular NB-IoT sensor nodes monitoring temperature, humidity, and vibration in vaccine transport coolers. Includes geofencing alerts, cryptographic tamper detection, and offline buffering.",
                 "domain": "IoT & Embedded",
                 "batch_year": 2027,
-                "guide": faculty_members[1],
+                "guide": faculty_members[6],
                 "leader": students[10].user,
                 "members": [students[11].user],
                 "status": Project.Status.UNDER_REVIEW,

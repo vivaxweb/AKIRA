@@ -103,7 +103,7 @@ export default function ProfilePage() {
 
       {/* Account Info */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle>Account Details</CardTitle>
           <Badge variant="info">{formatRole(user.role)}</Badge>
         </CardHeader>

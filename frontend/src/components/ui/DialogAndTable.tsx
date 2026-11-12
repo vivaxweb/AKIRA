@@ -65,7 +65,7 @@ export function Dialog({ isOpen, onClose, title, description, children, maxWidth
 // --- Table ---
 export function Table({ className, children, ...props }: React.TableHTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="w-full overflow-x-auto rounded-lg border border-slate-200 bg-white">
+    <div className="w-full overflow-x-auto">
       <table className={cn("w-full text-left text-sm text-slate-700", className)} {...props}>
         {children}
       </table>

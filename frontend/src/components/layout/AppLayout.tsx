@@ -160,18 +160,18 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             >
               {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-black tracking-widest text-indigo-600 uppercase">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-xs font-black tracking-widest text-indigo-600 uppercase shrink-0">
                 AKIRA
               </span>
-              <span className="text-slate-300">/</span>
-              <span className="text-xs font-semibold text-slate-800">
+              <span className="text-slate-300 shrink-0">/</span>
+              <span className="text-xs font-semibold text-slate-800 truncate max-w-[130px] sm:max-w-xs md:max-w-none">
                 {currentNav?.title || "Department Digital Hub"}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* AI Assistant Quick Launcher */}
             <Link
               href="/assistant"
@@ -198,7 +198,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                 className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-100 text-slate-700 text-xs font-medium"
               >
-                <div className="h-7 w-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
+                <div className="h-7 w-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs shrink-0">
                   {user?.first_name?.[0] || "U"}
                 </div>
                 <span className="hidden sm:inline font-semibold">{user?.first_name || "Account"}</span>
@@ -206,10 +206,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </button>
 
               {isUserMenuOpen && (
-                <div
-                  onMouseLeave={() => setIsUserMenuOpen(false)}
-                  className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-200 bg-white py-1.5 shadow-lg z-50 text-xs"
-                >
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsUserMenuOpen(false)} />
+                  <div
+                    className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-200 bg-white py-1.5 shadow-lg z-50 text-xs"
+                  >
                   <div className="px-3.5 py-2.5 border-b border-slate-100">
                     <p className="font-bold text-slate-900 truncate">{user?.full_name}</p>
                     <p className="text-[11px] text-slate-500 truncate">{user?.email}</p>
@@ -247,7 +248,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     <span>Sign out</span>
                   </button>
                 </div>
-              )}
+              </>
+            )}
             </div>
           </div>
         </header>

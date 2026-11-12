@@ -55,12 +55,12 @@ Pop-Location
 Write-Host ""
 Write-Host "=== Setup complete! ===" -ForegroundColor Green
 Write-Host ""
-Write-Host "Demo logins (password: Demo@12345):" -ForegroundColor Cyan
-Write-Host "  principal@demo.local"
-Write-Host "  hod@demo.local"
-Write-Host "  faculty1@demo.local"
-Write-Host "  coordinator@demo.local"
-Write-Host "  student01@demo.local"
+Write-Host "Department Logins (password: Demo@12345):" -ForegroundColor Cyan
+Write-Host "  HOD:         hodcse@tkietwarana.ac.in  (Dr. Ramgouda B. Patil)"
+Write-Host "  Faculty:     amol_patil@tkietwarana.ac.in (Prof. Amol G. Patil)"
+Write-Host "  Coordinator: asphalle@tkietwarana.ac.in (Prof. Anil S. Phalle)"
+Write-Host "  Principal:   principal@demo.local (Dr. D. N. Mudgal)"
+Write-Host "  Student:     student01@demo.local (Roll: 23CSE001)"
 Write-Host ""
 Write-Host "To start the app:"
 Write-Host "  Backend:  .\scripts\run-backend.ps1"

@@ -108,11 +108,11 @@ export default function LoginPage() {
             <div className="grid grid-cols-2 gap-2 text-xs">
               <button
                 type="button"
-                onClick={() => fillDemo("hod@demo.local")}
+                onClick={() => fillDemo("hodcse@tkietwarana.ac.in")}
                 className="p-2 border border-slate-200 rounded-lg text-left hover:bg-slate-50 text-slate-700 transition-colors"
               >
-                <div className="font-semibold text-slate-900">HOD</div>
-                <div className="text-[10px] text-slate-500">hod@demo.local</div>
+                <div className="font-semibold text-slate-900 truncate">HOD (Dr. R. B. Patil)</div>
+                <div className="text-[10px] text-slate-500 truncate">hodcse@tkietwarana.ac.in</div>
               </button>
               <button
                 type="button"
@@ -120,30 +120,30 @@ export default function LoginPage() {
                 className="p-2 border border-slate-200 rounded-lg text-left hover:bg-slate-50 text-slate-700 transition-colors"
               >
                 <div className="font-semibold text-slate-900">Principal</div>
-                <div className="text-[10px] text-slate-500">principal@demo.local</div>
+                <div className="text-[10px] text-slate-500 truncate">principal@demo.local</div>
               </button>
               <button
                 type="button"
-                onClick={() => fillDemo("faculty1@demo.local")}
+                onClick={() => fillDemo("amol_patil@tkietwarana.ac.in")}
                 className="p-2 border border-slate-200 rounded-lg text-left hover:bg-slate-50 text-slate-700 transition-colors"
               >
-                <div className="font-semibold text-slate-900">Faculty</div>
-                <div className="text-[10px] text-slate-500">faculty1@demo.local</div>
+                <div className="font-semibold text-slate-900 truncate">Faculty (Prof. A. G. Patil)</div>
+                <div className="text-[10px] text-slate-500 truncate">amol_patil@tkietwarana.ac.in</div>
               </button>
               <button
                 type="button"
-                onClick={() => fillDemo("coordinator@demo.local")}
+                onClick={() => fillDemo("asphalle@tkietwarana.ac.in")}
                 className="p-2 border border-slate-200 rounded-lg text-left hover:bg-slate-50 text-slate-700 transition-colors"
               >
-                <div className="font-semibold text-slate-900">Coordinator</div>
-                <div className="text-[10px] text-slate-500">coordinator@demo.local</div>
+                <div className="font-semibold text-slate-900 truncate">Coordinator (Prof. A. S. Phalle)</div>
+                <div className="text-[10px] text-slate-500 truncate">asphalle@tkietwarana.ac.in</div>
               </button>
               <button
                 type="button"
                 onClick={() => fillDemo("student01@demo.local")}
                 className="col-span-2 p-2 border border-slate-200 rounded-lg text-left hover:bg-slate-50 text-slate-700 transition-colors"
               >
-                <div className="font-semibold text-slate-900">Student 01</div>
+                <div className="font-semibold text-slate-900">Student 01 (Roll: 23CSE001)</div>
                 <div className="text-[10px] text-slate-500">student01@demo.local</div>
               </button>
             </div>

@@ -61,14 +61,14 @@ All demo accounts share the password: **`Demo@12345`**
 
 On the login page (`http://localhost:3000/login`), **5 One-Click Quick-Fill buttons** allow instant switching between all roles without manual typing:
 
-| Role | Email | Password | Scope & Key Capabilities |
+| Role | Name & Official Email | Password | Scope & Key Capabilities |
 |---|---|---|---|
-| **Principal** | `principal@demo.local` | `Demo@12345` | Institution-wide oversight, cross-department read access, NBA accreditation audit, executive KPIs |
-| **HOD** | `hod@demo.local` | `Demo@12345` | Full department management, user directory & CSV student importer, project approvals, logbook review |
-| **Faculty** | `faculty1@demo.local` | `Demo@12345` | Allocated courses attendance roster, CIE marks grid, digital logbook entries, capstone milestone sign-off |
-| **Coordinator** | `coordinator@demo.local` | `Demo@12345` | Class group coordination, attendance compliance audits, student intervention logging |
-| **Student** | `student01@demo.local` | `Demo@12345` | Attendance tracking, CIE marks view, capstone proposal submission with instant similarity meter, progress card PDF |
-| **Student (At Risk)** | `student28@demo.local` | `Demo@12345` | Seeded below 75% attendance and with mark drop to demonstrate early warning risk detection & remedial alerts |
+| **Principal** | Dr. D. N. Mudgal<br>`principal@demo.local` | `Demo@12345` | Institution-wide oversight, cross-department read access, NBA accreditation audit, executive KPIs |
+| **HOD** | Dr. Ramgouda B. Patil<br>`hodcse@tkietwarana.ac.in` | `Demo@12345` | Full department management, user directory & CSV student importer, project approvals, logbook review |
+| **Faculty Guide** | Prof. Amol G. Patil<br>`amol_patil@tkietwarana.ac.in` | `Demo@12345` | Allocated courses attendance roster, CIE marks grid, digital logbook entries, capstone milestone sign-off |
+| **Class Coordinator** | Prof. Anil S. Phalle<br>`asphalle@tkietwarana.ac.in` | `Demo@12345` | Class group coordination, attendance compliance audits, student intervention logging |
+| **Student** | Demo Student 01 (Roll: 23CSE001)<br>`student01@demo.local` | `Demo@12345` | Attendance tracking, CIE marks view, capstone proposal submission with instant similarity meter, progress card PDF |
+| **Student (At Risk)** | Demo Student 28 (Roll: 23CSE028)<br>`student28@demo.local` | `Demo@12345` | Seeded below 75% attendance and with mark drop to demonstrate early warning risk detection & remedial alerts |
 
 ---
 
