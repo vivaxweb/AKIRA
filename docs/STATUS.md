@@ -12,7 +12,7 @@
 | Phase 7 — Reports, Accreditation, Dashboards | PASSED | 2026-11-12 | 5ca6ea7 |
 | Phase 8 — Hardening, seed data, docs, packaging | PASSED | 2026-11-12 | a9dbf26 |
 | Phase 9 — Deployment (Optional) | PREPARED, NOT EXECUTED | - | - |
-| Phase 10 — AI Knowledge Assistant (RAG) | NOT STARTED | - | - |
+| Phase 10 — AI Knowledge Assistant (RAG) | PASSED | 2026-11-12 | HEAD |
 
 ---
 
@@ -354,6 +354,62 @@ How to verify by hand:
 1. Run `powershell -ExecutionPolicy Bypass -File scripts/make_zip.ps1` and verify that `submission.zip` is produced cleanly with size < 5 MB.
 2. Open `docs/openapi.json` or query `http://127.0.0.1:8000/api/docs/` to inspect the complete OpenAPI documentation.
 3. Review `docs/RUNBOOK.md` and verify all setup and troubleshooting instructions.
+
+---
+
+## Phase 10 — AI Knowledge Assistant (RAG) — PASSED
+Built:
+- Backend AI Assistant Models (`backend/apps/assistant/models.py`):
+  - `KnowledgeDocument`: Department-scoped knowledge items across 5 categories (`ACADEMIC_REGULATION`, `SYLLABUS`, `PROJECT_GUIDELINES`, `PLACEMENT`, `GENERAL`) with tags, plain text/markdown content, and optional link to official `DepartmentDocument`.
+  - `ChatMessage`: Chat exchange tracking user query, generated response, cited sources JSON (with document ID, title, score, excerpt snippet), execution mode (`groq_llm` vs `offline_extractive`), and token usage count.
+- Dual-Engine RAG Pipeline (`backend/apps/assistant/services.py`):
+  - **TF-IDF Semantic Document Retrieval**: Computes n-gram (1, 2) TF-IDF representations across the active department corpus with sublinear term-frequency scaling and cosine similarity matching, selecting the top-k highest-scoring documents and extracting the most relevant matching paragraphs.
+  - **Cloud LLM Support**: Direct integration with Groq API (`llama-3.1-8b-instant`) when `GROQ_API_KEY` is present.
+  - **Deterministic Offline Extractive Engine**: Zero external dependency fallback that answers queries with structured, cited markdown for attendance cutoffs, CIE passing criteria, capstone similarity rules, and placement requirements during offline evaluation.
+- Assistant REST API Endpoints (`backend/apps/assistant/views.py`):
+  - `GET /api/v1/assistant/documents/`: Paginated and searchable knowledge corpus with category and keyword filters.
+  - `POST /api/v1/assistant/documents/`: Staff-authorized document indexing.
+  - `POST /api/v1/assistant/chat/`: Query submission endpoint returning generated response, confidence scores, mode badge, and source citations.
+  - `GET /api/v1/assistant/history/`: User-scoped conversation history list.
+  - `DELETE /api/v1/assistant/history/`: User-scoped conversation history reset.
+- Seed Data (`backend/apps/accounts/management/commands/seed_demo.py`):
+  - Seeded 4 official department documents:
+    1. B.Tech Academic Regulations & Continuous Evaluation Scheme (2026-27)
+    2. Database Management Systems (CS501) Syllabus & Learning Outcomes
+    3. B.Tech Final-Year Capstone Project Guidelines & Similarity Rules
+    4. TKIET Campus Placement Guidelines & Eligibility Policies
+- Automated Tests (`backend/apps/assistant/tests/test_assistant.py`):
+  - 7 comprehensive tests covering vector retrieval matching, non-match fallback, offline extractive responses, chat API validation, history isolation/clearing, and document search/filtering.
+  - Full test suite: 65 backend tests passed (0 failures).
+- Next.js Interactive Frontend (`frontend/src/app/assistant/page.tsx`):
+  - Modern dual-tab interface: Interactive Chat & Department Corpus browser.
+  - 5 quick prompt suggestion chips ("Attendance cutoff", "CIE passing criteria", "Capstone similarity rules", "DBMS syllabus", "Campus placement eligibility").
+  - Zero-dependency markdown formatter supporting headings, bullet lists, bold text, blockquotes, and code snippets.
+  - Clickable citation cards with match percentage badges and expandable quoted snippets.
+  - One-click "Clear Chat" history action.
+  - Browse corpus tab with instant search, category filtering, and "Ask Assistant about this" quick-launch buttons.
+  - Production build: 28 static routes generated, bundle size 133 kB (budget ≤ 170 kB), 0 ESLint warnings/errors.
+
+Commands run & results:
+- `python manage.py seed_demo` → Seeded 4 Knowledge Documents into SQLite database
+- `pytest apps/assistant/tests/` → 7 passed in 8.10s
+- `pytest -v` (full suite) → 65 passed in 99.56s
+- `npm run lint` (frontend) → ✔ No ESLint warnings or errors
+- `npm run build` (frontend) → 28 static routes compiled, First Load JS 133 kB (budget ≤ 170 kB)
+- `python manage.py spectacular --file docs/openapi.json` → Schema updated
+
+Tests: 65 backend tests passed, frontend TypeScript & ESLint 0 errors, production build passed.
+Not implemented / partial: None for Phase 10.
+Assumptions added: None new.
+
+How to verify by hand:
+1. Start backend (`.\scripts\run-backend.ps1`) and frontend (`.\scripts\run-frontend.ps1`).
+2. Log in as any demo user (e.g. `student01@demo.local` / `Demo@12345` or `hod@demo.local`).
+3. Click "AI Assistant" in the sidebar navigation or navigate to `http://localhost:3000/assistant`.
+4. Click any suggestion chip (e.g., *"What is the mandatory attendance cutoff & condonation policy?"*).
+5. Inspect the structured markdown response quoting the 75% cutoff, condonation rules, and citing *"B.Tech Academic Regulations & Continuous Evaluation Scheme (2026-27)"* with match confidence percentage.
+6. Switch to the *"Department Corpus"* tab to search knowledge documents by keyword and filter by category.
+
 
 
 

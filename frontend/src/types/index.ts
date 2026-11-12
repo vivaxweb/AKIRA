@@ -599,7 +599,48 @@ export interface ExecutiveDashboardKPIs {
     needs_attention: number;
     not_started: number;
   };
+}export type KnowledgeCategory =
+  | "ACADEMIC_REGULATION"
+  | "SYLLABUS"
+  | "PROJECT_GUIDELINES"
+  | "PLACEMENT"
+  | "GENERAL";
+
+export interface KnowledgeDocument {
+  id: number;
+  department: number;
+  title: string;
+  category: KnowledgeCategory;
+  category_display?: string;
+  content: string;
+  tags: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
+export interface AssistantSource {
+  id: number;
+  title: string;
+  category: string;
+  score: number;
+  snippet: string;
+}
 
+export interface ChatMessageItem {
+  id?: number;
+  query: string;
+  response: string;
+  sources: AssistantSource[];
+  mode: string;
+  tokens_used?: number;
+  created_at?: string;
+}
+
+export interface AssistantChatResponse {
+  query: string;
+  response: string;
+  sources: AssistantSource[];
+  mode: string;
+}
 

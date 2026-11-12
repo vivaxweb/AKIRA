@@ -226,6 +226,243 @@ paths:
               schema:
                 $ref: '#/components/schemas/Assessment'
           description: ''
+  /api/v1/assistant/chat/:
+    post:
+      operationId: assistant_chat_create
+      description: |-
+        RAG Assistant Chat endpoint.
+        Accepts student or faculty academic queries, retrieves relevant department context,
+        invokes Groq LLM or offline extractive generator, and returns response with cited sources.
+      tags:
+      - assistant
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/assistant/documents/:
+    get:
+      operationId: assistant_documents_list
+      description: |-
+        CRUD for department knowledge base documents.
+        All authenticated users can read; staff can create/edit.
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+          enum:
+          - ACADEMIC_REGULATION
+          - GENERAL
+          - PLACEMENT
+          - PROJECT_GUIDELINES
+          - SYLLABUS
+        description: |-
+          * `ACADEMIC_REGULATION` - Academic Regulations & Evaluation
+          * `SYLLABUS` - Course Syllabus & Outcomes
+          * `PROJECT_GUIDELINES` - Capstone Project Guidelines
+          * `PLACEMENT` - Placement & Career Guidance
+          * `GENERAL` - General Department Knowledge
+      - in: query
+        name: department
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - assistant
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedKnowledgeDocumentList'
+          description: ''
+    post:
+      operationId: assistant_documents_create
+      description: |-
+        CRUD for department knowledge base documents.
+        All authenticated users can read; staff can create/edit.
+      tags:
+      - assistant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeDocument'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/KnowledgeDocument'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/KnowledgeDocument'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeDocument'
+          description: ''
+  /api/v1/assistant/documents/{id}/:
+    get:
+      operationId: assistant_documents_retrieve
+      description: |-
+        CRUD for department knowledge base documents.
+        All authenticated users can read; staff can create/edit.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Knowledge Document.
+        required: true
+      tags:
+      - assistant
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeDocument'
+          description: ''
+    put:
+      operationId: assistant_documents_update
+      description: |-
+        CRUD for department knowledge base documents.
+        All authenticated users can read; staff can create/edit.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Knowledge Document.
+        required: true
+      tags:
+      - assistant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeDocument'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/KnowledgeDocument'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/KnowledgeDocument'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeDocument'
+          description: ''
+    patch:
+      operationId: assistant_documents_partial_update
+      description: |-
+        CRUD for department knowledge base documents.
+        All authenticated users can read; staff can create/edit.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Knowledge Document.
+        required: true
+      tags:
+      - assistant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedKnowledgeDocument'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedKnowledgeDocument'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedKnowledgeDocument'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeDocument'
+          description: ''
+    delete:
+      operationId: assistant_documents_destroy
+      description: |-
+        CRUD for department knowledge base documents.
+        All authenticated users can read; staff can create/edit.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Knowledge Document.
+        required: true
+      tags:
+      - assistant
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/assistant/history/:
+    get:
+      operationId: assistant_history_retrieve
+      description: |-
+        User's personal chat history with the Knowledge Assistant.
+        GET: List recent messages.
+        DELETE: Clear conversation history.
+      tags:
+      - assistant
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: assistant_history_destroy
+      description: |-
+        User's personal chat history with the Knowledge Assistant.
+        GET: List recent messages.
+        DELETE: Clear conversation history.
+      tags:
+      - assistant
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/v1/attainment-configs/:
     get:
       operationId: attainment_configs_list
@@ -5126,6 +5363,62 @@ components:
         * `REMEDIAL` - Remedial Classes
         * `PARENT_MEETING` - Parent-Teacher Meeting
         * `ATTENDANCE_WARNING` - Attendance Warning
+    KnowledgeDocument:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        department:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        category:
+          $ref: '#/components/schemas/KnowledgeDocumentCategoryEnum'
+        category_display:
+          type: string
+          readOnly: true
+        content:
+          type: string
+          description: Plain text or markdown content for retrieval
+        tags:
+          type: string
+          description: Comma-separated keywords
+          maxLength: 255
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - category_display
+      - content
+      - created_at
+      - department
+      - id
+      - title
+      - updated_at
+    KnowledgeDocumentCategoryEnum:
+      enum:
+      - ACADEMIC_REGULATION
+      - SYLLABUS
+      - PROJECT_GUIDELINES
+      - PLACEMENT
+      - GENERAL
+      type: string
+      description: |-
+        * `ACADEMIC_REGULATION` - Academic Regulations & Evaluation
+        * `SYLLABUS` - Course Syllabus & Outcomes
+        * `PROJECT_GUIDELINES` - Capstone Project Guidelines
+        * `PLACEMENT` - Placement & Career Guidance
+        * `GENERAL` - General Department Knowledge
     LogbookEntry:
       type: object
       properties:
@@ -5609,6 +5902,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Intervention'
+    PaginatedKnowledgeDocumentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgeDocument'
     PaginatedLogbookEntryList:
       type: object
       required:
@@ -6271,6 +6587,40 @@ components:
           format: date-time
           readOnly: true
           nullable: true
+    PatchedKnowledgeDocument:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        department:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        category:
+          $ref: '#/components/schemas/KnowledgeDocumentCategoryEnum'
+        category_display:
+          type: string
+          readOnly: true
+        content:
+          type: string
+          description: Plain text or markdown content for retrieval
+        tags:
+          type: string
+          description: Comma-separated keywords
+          maxLength: 255
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
     PatchedLogbookEntry:
       type: object
       properties:

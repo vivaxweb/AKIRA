@@ -30,6 +30,7 @@ from apps.insights.models import Intervention
 from apps.projects.models import Project, ProjectMember, ProjectMilestone, SimilarityCheck
 from apps.communication.models import Notice, DepartmentEvent, DepartmentDocument
 from apps.reports.models import AccreditationCriteria, EvidenceLink
+from apps.assistant.models import KnowledgeDocument, ChatMessage
 
 
 STANDARD_POS = [
@@ -59,6 +60,8 @@ class Command(BaseCommand):
         demo_password = "Demo@12345"
 
         if reset:
+            ChatMessage.objects.all().delete()
+            KnowledgeDocument.objects.all().delete()
             EvidenceLink.objects.all().delete()
             AccreditationCriteria.objects.all().delete()
             DepartmentDocument.objects.all().delete()
@@ -898,9 +901,98 @@ class Command(BaseCommand):
                     },
                 )
 
+        # 16. AI Knowledge Assistant Documents (Phase 10)
+        demo_knowledge_docs = [
+            {
+                "title": "B.Tech Academic Regulations & Continuous Evaluation Scheme (2026-27)",
+                "category": KnowledgeDocument.Category.ACADEMIC_REGULATION,
+                "tags": "attendance, cie, passing marks, detention, condonation, grading, rules",
+                "content": (
+                    "TKIET Autonomous Academic Regulations for B.Tech CSE (Academic Year 2026-27):\n\n"
+                    "1. Attendance Norms:\n"
+                    "- Every student must maintain a minimum attendance of 75% in each registered theory and practical course.\n"
+                    "- A student having attendance between 65% and 74.9% may be considered for condonation of attendance deficit on genuine medical grounds upon submission of valid medical certificates and hospital admission records countersigned by the Class Coordinator and HOD.\n"
+                    "- Students with attendance strictly below 65% in any course will NOT be permitted to appear for the Semester End Examination (SEE) in that course and shall be detained.\n\n"
+                    "2. Continuous Internal Evaluation (CIE) Scheme:\n"
+                    "- Continuous evaluation consists of two Continuous Internal Evaluation tests (CIE-1 of 20 marks, CIE-2 of 20 marks) and Continuous Lab/Course Assessments (10 marks).\n"
+                    "- A student must secure a minimum aggregate of 40% marks in the internal assessment components to be eligible for end-semester examinations.\n"
+                    "- Students scoring below 40% or exhibiting a >= 15% grade drop between consecutive assessments are flagged on the Early Warning Risk Roster and scheduled for remedial laboratory and tutorial sessions."
+                ),
+            },
+            {
+                "title": "Database Management Systems (CS501) Syllabus & Learning Outcomes",
+                "category": KnowledgeDocument.Category.SYLLABUS,
+                "tags": "cs501, dbms, database, syllabus, sql, normalization, transactions, nosql",
+                "content": (
+                    "Course Syllabus: CS501 Database Management Systems (Credits: 4, Semester 5, TE-CSE):\n\n"
+                    "Unit 1: Introduction & Conceptual Modeling (6 Hours)\n"
+                    "Database system architecture, data models, schemas, and instances. Entity-Relationship (ER) model, extended ER features, mapping ER diagrams to relational schemas.\n\n"
+                    "Unit 2: Relational Model & Relational Algebra (6 Hours)\n"
+                    "Relational model concepts, integrity constraints (entity, referential, domain). Relational algebra operations: select, project, join, division, aggregate functions.\n\n"
+                    "Unit 3: SQL & Advanced Database Programming (8 Hours)\n"
+                    "DDL, DML, DCL commands. Nested subqueries, complex joins, views, assertions, and triggers. PL/SQL blocks, stored procedures, cursor management, and exception handling.\n\n"
+                    "Unit 4: Relational Database Design & Normalization (7 Hours)\n"
+                    "Functional dependencies, closure of attributes, minimal cover. Normal forms: 1NF, 2NF, 3NF, Boyce-Codd Normal Form (BCNF). Lossless join decomposition and dependency preservation.\n\n"
+                    "Unit 5: Transaction Processing & Concurrency Control (7 Hours)\n"
+                    "ACID properties, transaction schedules, serializability (conflict and view). Two-Phase Locking (2PL), deadlock prevention and detection, timestamp ordering, recovery techniques.\n\n"
+                    "Unit 6: Modern Storage & NoSQL Systems (6 Hours)\n"
+                    "Limitations of relational model for unstructured big data. CAP theorem, BASE properties. Introduction to document-oriented databases (MongoDB) and key-value stores."
+                ),
+            },
+            {
+                "title": "B.Tech Final-Year Capstone Project Guidelines & Similarity Rules",
+                "category": KnowledgeDocument.Category.PROJECT_GUIDELINES,
+                "tags": "project, capstone, similarity, duplicate check, milestones, ieee, viva",
+                "content": (
+                    "Department Capstone Project Manual for B.Tech Final Year (Batches 2026 & 2027):\n\n"
+                    "1. Team Composition & Domain Selection:\n"
+                    "- Project teams must comprise 2 to 4 students from the final-year class.\n"
+                    "- Permitted technology domains: Machine Learning & AI, Cloud & Distributed Systems, Cybersecurity, IoT & Embedded, Blockchain, Computer Vision, and Full-Stack Engineering.\n\n"
+                    "2. Similarity Check & Duplicate Idea Policy:\n"
+                    "- Prior to formal approval, project titles and abstracts are passed through the automated Department Similarity Check Engine.\n"
+                    "- Proposals with an overlap score >= 60% with capstone projects from the past three academic batches are flagged as DUPLICATE RISK.\n"
+                    "- Teams must revise their problem statement and technical architecture before committee reconsideration.\n\n"
+                    "3. 5-Stage Evaluation Milestones:\n"
+                    "  Stage 1: Synopsis & Problem Statement Submission (Week 3)\n"
+                    "  Stage 2: Software Requirement Specification (SRS) & Architecture Design (Week 6)\n"
+                    "  Stage 3: Mid-Term Progress Review & Working Core Modules (Week 10)\n"
+                    "  Stage 4: Complete Prototype & Tested Code Implementation (Week 13)\n"
+                    "  Stage 5: Final Dissertation Report (IEEE Conference Format) & External Viva-Voce (Week 15)\n\n"
+                    "Each milestone requires formal online sign-off from the allotted faculty guide."
+                ),
+            },
+            {
+                "title": "TKIET Campus Placement Guidelines & Eligibility Policies",
+                "category": KnowledgeDocument.Category.PLACEMENT,
+                "tags": "placement, tcs, infosys, cgpa, eligibility, package, jobs, interview",
+                "content": (
+                    "Training & Placement Cell (T&P) CSE Guidelines (2026-27):\n\n"
+                    "1. Academic Eligibility Criteria:\n"
+                    "- Final-year students (BE-CSE) must possess an aggregate CGPA >= 6.75 (or 60% aggregate) with no active backlogs at the time of drive registration.\n"
+                    "- Minimum 70% attendance in all T&P training bootcamps, coding practice sessions, and mock technical interview rounds.\n\n"
+                    "2. Recruitment Drives & Process:\n"
+                    "- Tier-1 Recruiters: TCS (Digital/Ninja), Infosys (SP/DSE), Cognizant, Persistent Systems, Tech Mahindra.\n"
+                    "- Rounds: Online aptitude test (quantitative, logical, verbal), hands-on coding assessment (Data Structures & Algorithms), Technical Interview, and HR Interview.\n"
+                    "- Students selected under a Dream Offer (> 7.0 LPA) are excused from further pooled campus interviews to ensure maximum placement opportunity across the batch."
+                ),
+            },
+        ]
+
+        for k_info in demo_knowledge_docs:
+            KnowledgeDocument.objects.update_or_create(
+                department=cse_dept,
+                title=k_info["title"],
+                defaults={
+                    "category": k_info["category"],
+                    "tags": k_info["tags"],
+                    "content": k_info["content"],
+                    "is_active": True,
+                },
+            )
+
         self.stdout.write(
             self.style.SUCCESS(
-                f"Phase 7 Seed completed!\n"
+                f"Phase 10 Seed completed!\n"
                 f"  - 1 Department (CSE) with AttainmentConfig\n"
                 f"  - 12 Standard Program Outcomes (PO1..PO12)\n"
                 f"  - 2 Class Groups (TE-CSE, BE-CSE)\n"
@@ -915,7 +1007,8 @@ class Command(BaseCommand):
                 f"  - 4 Department Notices (pinned, urgent, role-scoped)\n"
                 f"  - 4 Academic & Examination Events\n"
                 f"  - 6 Department Documents (public syllabi, templates, lab manuals & confidential faculty papers)\n"
-                f"  - 5 NBA Accreditation Criteria with 7 Evidence Links (documents, capstone projects, URLs)"
+                f"  - 5 NBA Accreditation Criteria with 7 Evidence Links (documents, capstone projects, URLs)\n"
+                f"  - 4 Rich Department Knowledge Base Documents for AI RAG Assistant"
             )
         )
 

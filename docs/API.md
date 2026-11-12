@@ -113,3 +113,15 @@ Comprehensive REST API documentation for the **Department Digital Hub** backend.
 | Method | Endpoint | Description | Role / Permission |
 |---|---|---|---|
 | `GET` | `/health/` | Service health status, Django version, and API version | Public (200 OK) |
+
+---
+
+## 9. AI Knowledge Assistant (`/api/v1/assistant/`)
+
+| Method | Endpoint | Description | Role / Permission |
+|---|---|---|---|
+| `GET` | `/assistant/documents/` | List & search active departmental knowledge corpus | Authenticated |
+| `POST` | `/assistant/documents/` | Index new knowledge document or regulation | Faculty, HOD |
+| `POST` | `/assistant/chat/` | Submit query for RAG retrieval & answer generation | Authenticated |
+| `GET` | `/assistant/history/` | View current user's conversation history | Authenticated |
+| `DELETE` | `/assistant/history/` | Reset / clear current user's conversation history | Authenticated |
