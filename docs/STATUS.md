@@ -3,7 +3,7 @@
 | Phase | Status | Date | Commit Hash |
 |---|---|---|---|
 | Phase 0 — Scaffolding and environment verification | PASSED | 2026-11-12 | 69b792d |
-| Phase 1 — Backend foundation: accounts, roles, auth | PASSED | 2026-11-12 | pending |
+| Phase 1 — Backend foundation: accounts, roles, auth | PASSED | 2026-11-12 | 9ad4e02 |
 | Phase 2 — Frontend foundation and design system | NOT STARTED | - | - |
 | Phase 3 — Academic Operations | NOT STARTED | - | - |
 | Phase 4 — Student & Faculty Intelligence | NOT STARTED | - | - |
