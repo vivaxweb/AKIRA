@@ -458,4 +458,85 @@ export interface SimilarityCheckResponse {
   top_matches: SimilarityMatch[];
 }
 
+export type NoticeCategory =
+  | "ACADEMIC"
+  | "EXAM"
+  | "PLACEMENT"
+  | "EVENT"
+  | "GENERAL";
+
+export type NoticePriority = "LOW" | "NORMAL" | "URGENT";
+
+export interface Notice {
+  id: number;
+  department: number;
+  title: string;
+  content: string;
+  category: NoticeCategory;
+  priority: NoticePriority;
+  target_roles: Role[];
+  is_pinned: boolean;
+  expires_at: string | null;
+  attachment: string | null;
+  published_by: number;
+  publisher_name: string;
+  publisher_role: Role;
+  created_at: string;
+  updated_at: string;
+}
+
+export type EventType =
+  | "EXAM"
+  | "DEADLINE"
+  | "WORKSHOP"
+  | "SEMINAR"
+  | "MEETING"
+  | "HOLIDAY"
+  | "OTHER";
+
+export interface DepartmentEvent {
+  id: number;
+  department: number;
+  title: string;
+  description: string;
+  event_type: EventType;
+  start_datetime: string;
+  end_datetime: string | null;
+  location: string;
+  organizer: number | null;
+  organizer_name: string;
+  target_roles: Role[];
+  created_at: string;
+}
+
+export type DocumentCategory =
+  | "SYLLABUS"
+  | "TIMETABLE"
+  | "CIRCULAR"
+  | "TEMPLATE"
+  | "QUESTION_PAPER"
+  | "LAB_MANUAL"
+  | "ACCREDITATION"
+  | "OTHER";
+
+export interface DepartmentDocument {
+  id: number;
+  department: number;
+  title: string;
+  description: string;
+  category: DocumentCategory;
+  file: string;
+  file_url: string;
+  file_size_bytes: number;
+  file_type: string;
+  version: string;
+  allowed_roles: Role[];
+  uploaded_by: number | null;
+  uploader_name: string;
+  download_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+
 

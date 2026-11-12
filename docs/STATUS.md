@@ -7,8 +7,8 @@
 | Phase 2 — Frontend foundation and design system | PASSED | 2026-11-12 | 9195d63 |
 | Phase 3 — Academic Operations | PASSED | 2026-11-12 | 1e5c373 |
 | Phase 4 — Student & Faculty Intelligence | PASSED | 2026-11-12 | 0508537 |
-| Phase 5 — Project Repository & Similarity Detection | PASSED | 2026-11-12 | de9f0e4 |
-| Phase 6 — Communication & Document Library | NOT STARTED | - | - |
+| Phase 5 — Project Repository & Similarity Detection | PASSED | 2026-11-12 | 7ce33ad |
+| Phase 6 — Communication & Document Library | PASSED | 2026-11-12 | cd05ea9 |
 | Phase 7 — Reports, Accreditation, Dashboards | NOT STARTED | - | - |
 | Phase 8 — Hardening, seed data, docs, packaging | NOT STARTED | - | - |
 | Phase 9 — Deployment (Optional) | PREPARED, NOT EXECUTED | - | - |
@@ -245,6 +245,43 @@ How to verify by hand:
 5. Change to a unique idea (e.g. *"Autonomous Subsea Drone for Coral Reef Acoustic Mapping"*) and observe the meter drop to 0% with a green "Unique Idea" badge.
 6. Open any project to view its 5-stage milestone timeline. As student, toggle completion on a milestone.
 7. Login as `faculty1@demo.local`, open the same project, and click "Sign Off" on the completed milestone to record formal guide verification with remarks.
+
+---
+
+## Phase 6 — Communication & Document Library — PASSED
+Built:
+- `apps/communication/models.py`:
+  - `Notice`: department, title, content, category (`ACADEMIC`, `EXAM`, `PLACEMENT`, `EVENT`, `GENERAL`), priority (`LOW`, `NORMAL`, `URGENT`), target_roles, is_pinned, expires_at, attachment, published_by.
+  - `DepartmentEvent`: department, title, description, event_type (`EXAM`, `DEADLINE`, `WORKSHOP`, `SEMINAR`, `MEETING`, `HOLIDAY`, `OTHER`), start_datetime, end_datetime, location, organizer, target_roles.
+  - `DepartmentDocument`: department, title, description, category (`SYLLABUS`, `TIMETABLE`, `CIRCULAR`, `TEMPLATE`, `QUESTION_PAPER`, `LAB_MANUAL`, `ACCREDITATION`, `OTHER`), file, file_size_bytes, file_type, version, allowed_roles (role-scoping for confidential faculty records), uploaded_by, download_count.
+- `apps/communication/serializers.py`: `NoticeSerializer`, `DepartmentEventSerializer`, and `DepartmentDocumentSerializer` with automated file size/type computation and file URL serialization.
+- `apps/communication/views.py`: `NoticeViewSet` with role filtering and pin ordering; `DepartmentEventViewSet` with event type and date range filters; `DepartmentDocumentViewSet` with role-restricted queryset scoping and `POST /download/` action incrementing counters.
+- `apps/communication/permissions.py`: Role-scoped permissions ensuring students have read-only access and cannot see or download staff-only restricted documents.
+- `apps/communication/tests/test_communication.py`: 7 automated tests covering faculty notice publication, student publish blocking, role-scoped notice visibility, event creation, confidential document hiding from students, and download tracking.
+- `apps/accounts/management/commands/seed_demo.py`: Seeded 4 department notices (urgent, pinned, role-scoped), 4 academic events, and 6 documents (curriculum, academic calendar, IEEE capstone template, lab manual, and confidential question papers).
+- `frontend/src/app/communication/notices/page.tsx`: Department Notice Board with pinned announcement banners, category filter pills, keyword search, urgent priority indicators, notice reader modal with attachment links, and publish notice modal.
+- `frontend/src/app/communication/events/page.tsx`: Academic Calendar & Deadlines timeline with date badges, event type tags, location, organizer info, and event scheduling modal.
+- `frontend/src/app/documents/page.tsx`: Centralized Document Library with category filters, version pills, restricted staff badges, search, download counters, and upload modal with role-based confidentiality controls.
+
+Commands run & results:
+- `.venv\Scripts\python.exe -m pytest apps/communication/tests/test_communication.py -v` → 7 passed in 17.20s
+- `.venv\Scripts\python.exe -m pytest -v` → 52 passed in 359.04s
+- `npm run lint` → ✔ No ESLint warnings or errors
+- `npm run build` → 23 static routes compiled successfully, all First Load JS bundles ≤ 134 kB (budget ≤ 170 kB)
+
+Tests: 52 backend tests passed, frontend TypeScript and ESLint 0 errors, production build passed.
+
+Not implemented / partial: None for Phase 6.
+Assumptions added: None new (AMP-001 through AMP-010 apply).
+
+How to verify by hand:
+1. Start backend and frontend with `.\scripts\run-backend.ps1` and `.\scripts\run-frontend.ps1`.
+2. Login as `student01@demo.local` with `Demo@12345`.
+3. Open `http://localhost:3000/communication/notices` to view published department notices, inspect pinned circulars, and search by keywords.
+4. Open `http://localhost:3000/communication/events` to inspect the academic timeline, CIE-2 exam slots, and capstone presentation dates.
+5. Open `http://localhost:3000/documents` to browse public syllabi and templates. Click "Download" to trigger the file download and increment the counter. Notice that confidential faculty question papers are completely hidden from the student view.
+6. Login as `hod@demo.local`, open `http://localhost:3000/documents`, and observe the confidential end-semester question paper and faculty appraisal form with restricted staff badges.
+
 
 
 

@@ -25,8 +25,10 @@ from apps.academics.models import (
     AttainmentConfig,
     LogbookEntry,
 )
+from django.core.files.base import ContentFile
 from apps.insights.models import Intervention
 from apps.projects.models import Project, ProjectMember, ProjectMilestone, SimilarityCheck
+from apps.communication.models import Notice, DepartmentEvent, DepartmentDocument
 
 
 STANDARD_POS = [
@@ -567,9 +569,197 @@ class Command(BaseCommand):
                     },
                 )
 
+        # 14. Communication & Document Library (Phase 6)
+        # Notices
+        demo_notices = [
+            {
+                "title": "Mandatory Submission of CIE-2 Marks & Continuous Assessment Verification",
+                "content": "All course faculty are requested to complete evaluation and entry of CIE-2 marks on the Digital Hub by Friday 5:00 PM. Students can verify their internal marks and report discrepancies to their respective course coordinators before final tabulation.",
+                "category": Notice.Category.ACADEMIC,
+                "priority": Notice.Priority.URGENT,
+                "is_pinned": True,
+                "target_roles": [],
+                "publisher": hod,
+            },
+            {
+                "title": "Campus Placement Drive 2026-27: TCS Digital & Infosys SP Registration Open",
+                "content": "Eligible final-year (BE-CSE) students with CGPA >= 6.75 and no active backlogs are directed to register on the T&P portal before 18th November. Online aptitude and coding assessments will be conducted in Computer Center Labs 1 & 2.",
+                "category": Notice.Category.PLACEMENT,
+                "priority": Notice.Priority.NORMAL,
+                "is_pinned": True,
+                "target_roles": [User.Role.STUDENT],
+                "publisher": coordinator,
+            },
+            {
+                "title": "Call for Papers: National Conference on Cloud Systems & AI (NCCSAI-2027)",
+                "content": "Department of Computer Science & Engineering is organizing NCCSAI-2027 in March 2027. Faculty members and postgraduate/undergraduate project teams are encouraged to submit original research papers. Selected papers will be submitted for Scopus indexing.",
+                "category": Notice.Category.EVENT,
+                "priority": Notice.Priority.NORMAL,
+                "is_pinned": False,
+                "target_roles": [],
+                "publisher": faculty_members[0],
+            },
+            {
+                "title": "Internal Department Faculty Meeting: NBA Criteria-3 Attainment Audit",
+                "content": "All teaching staff members are requested to attend the Criteria-3 review meeting in the Department Conference Room this Thursday at 4:00 PM. Please bring updated course files and CO-PO attainment direct evaluation sheets.",
+                "category": Notice.Category.ACADEMIC,
+                "priority": Notice.Priority.NORMAL,
+                "is_pinned": False,
+                "target_roles": [User.Role.FACULTY, User.Role.HOD, User.Role.COORDINATOR],
+                "publisher": hod,
+            },
+        ]
+
+        for n_info in demo_notices:
+            Notice.objects.update_or_create(
+                department=cse_dept,
+                title=n_info["title"],
+                defaults={
+                    "content": n_info["content"],
+                    "category": n_info["category"],
+                    "priority": n_info["priority"],
+                    "is_pinned": n_info["is_pinned"],
+                    "target_roles": n_info["target_roles"],
+                    "published_by": n_info["publisher"],
+                },
+            )
+
+        # Department Events
+        base_now = timezone.now()
+        demo_events = [
+            {
+                "title": "Continuous Internal Evaluation (CIE-2) Examination Week",
+                "description": "Mid-semester internal evaluation across all Third & Final Year subjects.",
+                "event_type": DepartmentEvent.EventType.EXAM,
+                "start": base_now + timedelta(days=3, hours=9),
+                "end": base_now + timedelta(days=8, hours=17),
+                "location": "Classrooms 301, 302, 304",
+                "organizer": coordinator,
+            },
+            {
+                "title": "Final-Year B.Tech Capstone Project Synopsis & Feasibility Presentation",
+                "description": "Evaluation committee presentation with duplicate check verification and guide sign-off.",
+                "event_type": DepartmentEvent.EventType.DEADLINE,
+                "start": base_now + timedelta(days=9, hours=10),
+                "end": base_now + timedelta(days=9, hours=16),
+                "location": "Department Seminar Hall",
+                "organizer": faculty_members[0],
+            },
+            {
+                "title": "Hands-on Technical Workshop: Microservices with Docker & Kubernetes",
+                "description": "Interactive training conducted by industry DevOps engineers from Red Hat.",
+                "event_type": DepartmentEvent.EventType.WORKSHOP,
+                "start": base_now + timedelta(days=14, hours=10),
+                "end": base_now + timedelta(days=15, hours=17),
+                "location": "Advanced Networking Lab (Lab 4)",
+                "organizer": faculty_members[1],
+            },
+            {
+                "title": "Department Advisory Board (DAB) Biannual Curriculum Review",
+                "description": "Strategic consultation with industry stakeholders, alumni, and academic experts.",
+                "event_type": DepartmentEvent.EventType.MEETING,
+                "start": base_now + timedelta(days=18, hours=14),
+                "end": base_now + timedelta(days=18, hours=17),
+                "location": "Board Room, Main Building",
+                "organizer": hod,
+            },
+        ]
+
+        for e_info in demo_events:
+            DepartmentEvent.objects.update_or_create(
+                department=cse_dept,
+                title=e_info["title"],
+                defaults={
+                    "description": e_info["description"],
+                    "event_type": e_info["event_type"],
+                    "start_datetime": e_info["start"],
+                    "end_datetime": e_info["end"],
+                    "location": e_info["location"],
+                    "organizer": e_info["organizer"],
+                },
+            )
+
+        # Department Documents
+        demo_docs = [
+            {
+                "title": "B.Tech Computer Science & Engineering Curriculum & Scheme (2026-27)",
+                "description": "Official autonomous curriculum syllabus booklet for Semester 1 through Semester 8.",
+                "category": DepartmentDocument.Category.SYLLABUS,
+                "version": "2.1",
+                "allowed_roles": [],
+                "file_name": "cse_curriculum_2026_27.pdf",
+                "downloads": 142,
+            },
+            {
+                "title": "Academic Calendar Even Semester 2026-27",
+                "description": "Schedule of term start, instruction duration, CIE exam slots, vacation, and university exams.",
+                "category": DepartmentDocument.Category.CIRCULAR,
+                "version": "1.0",
+                "allowed_roles": [],
+                "file_name": "academic_calendar_even_2026_27.pdf",
+                "downloads": 98,
+            },
+            {
+                "title": "B.Tech Capstone Project Report & Synopsis Standard Template",
+                "description": "IEEE two-column conference format and LaTeX/Word dissertation template for project teams.",
+                "category": DepartmentDocument.Category.TEMPLATE,
+                "version": "1.3",
+                "allowed_roles": [],
+                "file_name": "capstone_project_template_v1_3.docx",
+                "downloads": 84,
+            },
+            {
+                "title": "Database Management Systems Lab Manual & Practice Problems (CS501-L)",
+                "description": "Comprehensive lab assignments covering SQL queries, PL/SQL stored procedures, and triggers.",
+                "category": DepartmentDocument.Category.LAB_MANUAL,
+                "version": "3.0",
+                "allowed_roles": [],
+                "file_name": "dbms_lab_manual_cs501.pdf",
+                "downloads": 115,
+            },
+            {
+                "title": "Confidential: End-Semester Exam Question Paper Bank & Solution Scheme",
+                "description": "Restricted paper setter manuscripts and evaluation key schemes for university examiners.",
+                "category": DepartmentDocument.Category.QUESTION_PAPER,
+                "version": "1.0",
+                "allowed_roles": [User.Role.FACULTY, User.Role.HOD, User.Role.PRINCIPAL],
+                "file_name": "confidential_end_sem_paper_draft.pdf",
+                "downloads": 12,
+            },
+            {
+                "title": "Faculty Annual Appraisal & Performance Based Appraisal System (PBAS) Form",
+                "description": "Annual faculty self-appraisal proforma for research publications, teaching credits, and API scores.",
+                "category": DepartmentDocument.Category.TEMPLATE,
+                "version": "1.1",
+                "allowed_roles": [User.Role.FACULTY, User.Role.HOD],
+                "file_name": "faculty_pbas_appraisal_2026.pdf",
+                "downloads": 19,
+            },
+        ]
+
+        for d_info in demo_docs:
+            doc_obj, created = DepartmentDocument.objects.update_or_create(
+                department=cse_dept,
+                title=d_info["title"],
+                defaults={
+                    "description": d_info["description"],
+                    "category": d_info["category"],
+                    "version": d_info["version"],
+                    "allowed_roles": d_info["allowed_roles"],
+                    "uploaded_by": faculty_members[0],
+                    "download_count": d_info["downloads"],
+                },
+            )
+            if created or not doc_obj.file:
+                mock_content = f"Mock file content for {d_info['title']}. Department Digital Hub TKIET 2026-27."
+                doc_obj.file.save(d_info["file_name"], ContentFile(mock_content.encode("utf-8")), save=False)
+                doc_obj.file_size_bytes = len(mock_content)
+                doc_obj.file_type = d_info["file_name"].split(".")[-1].upper()
+                doc_obj.save(update_fields=["file", "file_size_bytes", "file_type"])
+
         self.stdout.write(
             self.style.SUCCESS(
-                f"Phase 5 Seed completed!\n"
+                f"Phase 6 Seed completed!\n"
                 f"  - 1 Department (CSE) with AttainmentConfig\n"
                 f"  - 12 Standard Program Outcomes (PO1..PO12)\n"
                 f"  - 2 Class Groups (TE-CSE, BE-CSE)\n"
@@ -580,7 +770,10 @@ class Command(BaseCommand):
                 f"  - 4 Course Outcomes & CO-PO Mappings\n"
                 f"  - 10 Digital Logbook Entries (reviewed & pending)\n"
                 f"  - 3 Logged Student Risk Interventions\n"
-                f"  - 6 Multi-Domain B.Tech Projects with Team Members and 30 Milestones"
+                f"  - 6 Multi-Domain B.Tech Projects with Team Members and 30 Milestones\n"
+                f"  - 4 Department Notices (pinned, urgent, role-scoped)\n"
+                f"  - 4 Academic & Examination Events\n"
+                f"  - 6 Department Documents (public syllabi, templates, lab manuals & confidential faculty papers)"
             )
         )
 
