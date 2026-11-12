@@ -15,8 +15,6 @@ import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
   Badge,
   Skeleton,
@@ -482,8 +480,8 @@ export default function ProjectRepositoryPage() {
                   key={proj.id}
                   className="flex flex-col justify-between hover:shadow-md transition-shadow border-slate-200"
                 >
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="p-5 pb-2 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="text-[11px] font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
                         {proj.domain}
                       </span>
@@ -496,13 +494,13 @@ export default function ProjectRepositoryPage() {
                         </Badge>
                       </div>
                     </div>
-                    <CardTitle
+                    <h3
                       onClick={() => setActiveProjectId(proj.id)}
-                      className="text-base font-bold text-slate-900 cursor-pointer hover:text-indigo-600 transition-colors line-clamp-2"
+                      className="text-base font-bold text-slate-900 cursor-pointer hover:text-indigo-600 transition-colors line-clamp-2 leading-snug"
                     >
                       {proj.title}
-                    </CardTitle>
-                  </CardHeader>
+                    </h3>
+                  </div>
 
                   <CardContent className="pt-0 space-y-4 flex-1 flex flex-col justify-between">
                     <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed">

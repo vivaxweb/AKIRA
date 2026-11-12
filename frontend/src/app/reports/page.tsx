@@ -9,8 +9,6 @@ import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Input";
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
 } from "@/components/ui/CardsAndFeedback";
 import { useToast } from "@/components/ui/Toast";
@@ -198,7 +196,7 @@ export default function ReportsExportPage() {
           {/* Card 1: Attendance Matrix XLSX */}
           {!isStudent && (
             <Card className="hover:border-indigo-200 transition-all shadow-sm">
-              <CardHeader className="pb-3 border-b border-slate-100">
+              <div className="p-5 pb-3 border-b border-slate-100 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="p-2 rounded-lg bg-blue-50 text-blue-700">
                     <CalendarCheck className="w-5 h-5" />
@@ -207,11 +205,13 @@ export default function ReportsExportPage() {
                     XLSX SPREADSHEET
                   </span>
                 </div>
-                <CardTitle className="text-base mt-2">Course Attendance Register</CardTitle>
-                <p className="text-xs text-slate-500">
-                  Full student roster matrix with session dates, total present, and attendance %
-                </p>
-              </CardHeader>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 leading-snug">Course Attendance Register</h3>
+                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                    Full student roster matrix with session dates, total present, and attendance %
+                  </p>
+                </div>
+              </div>
               <CardContent className="pt-4 space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
@@ -245,7 +245,7 @@ export default function ReportsExportPage() {
           {/* Card 2: CIE Marks Sheet XLSX */}
           {!isStudent && (
             <Card className="hover:border-indigo-200 transition-all shadow-sm">
-              <CardHeader className="pb-3 border-b border-slate-100">
+              <div className="p-5 pb-3 border-b border-slate-100 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="p-2 rounded-lg bg-emerald-50 text-emerald-700">
                     <FileSpreadsheet className="w-5 h-5" />
@@ -254,11 +254,13 @@ export default function ReportsExportPage() {
                     XLSX SPREADSHEET
                   </span>
                 </div>
-                <CardTitle className="text-base mt-2">Internal Assessment Marks Sheet</CardTitle>
-                <p className="text-xs text-slate-500">
-                  Tabulated CIE scores with class averages, percentages, and pass/fail classification
-                </p>
-              </CardHeader>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 leading-snug">Internal Assessment Marks Sheet</h3>
+                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                    Tabulated CIE scores with class averages, percentages, and pass/fail classification
+                  </p>
+                </div>
+              </div>
               <CardContent className="pt-4 space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
@@ -292,7 +294,7 @@ export default function ReportsExportPage() {
           {/* Card 3: CO-PO Attainment Calculation XLSX */}
           {!isStudent && (
             <Card className="hover:border-indigo-200 transition-all shadow-sm">
-              <CardHeader className="pb-3 border-b border-slate-100">
+              <div className="p-5 pb-3 border-b border-slate-100 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="p-2 rounded-lg bg-indigo-50 text-indigo-700">
                     <Target className="w-5 h-5" />
@@ -301,11 +303,13 @@ export default function ReportsExportPage() {
                     2-SHEET WORKBOOK
                   </span>
                 </div>
-                <CardTitle className="text-base mt-2">CO-PO Attainment Calculation</CardTitle>
-                <p className="text-xs text-slate-500">
-                  Direct Course Outcome score mapping and full PO1..PO12 weighted correlation matrix
-                </p>
-              </CardHeader>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 leading-snug">CO-PO Attainment Calculation</h3>
+                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                    Direct Course Outcome score mapping and full PO1..PO12 weighted correlation matrix
+                  </p>
+                </div>
+              </div>
               <CardContent className="pt-4 space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
@@ -338,7 +342,7 @@ export default function ReportsExportPage() {
 
           {/* Card 4: Comprehensive Student Progress Card PDF */}
           <Card className={`hover:border-indigo-200 transition-all shadow-sm ${isStudent ? "md:col-span-2" : ""}`}>
-            <CardHeader className="pb-3 border-b border-slate-100">
+            <div className="p-5 pb-3 border-b border-slate-100 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="p-2 rounded-lg bg-rose-50 text-rose-700">
                   <GraduationCap className="w-5 h-5" />
@@ -347,13 +351,15 @@ export default function ReportsExportPage() {
                   OFFICIAL PDF CARD
                 </span>
               </div>
-              <CardTitle className="text-base mt-2">
-                {isStudent ? "My Academic Progress Report Card" : "Student Comprehensive Progress Report"}
-              </CardTitle>
-              <p className="text-xs text-slate-500">
-                Official institutional report card with attendance, CIE grades, risk status, capstone project, and signatures
-              </p>
-            </CardHeader>
+              <div>
+                <h3 className="text-base font-bold text-slate-900 leading-snug">
+                  {isStudent ? "My Academic Progress Report Card" : "Student Comprehensive Progress Report"}
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                  Official institutional report card with attendance, CIE grades, risk status, capstone project, and signatures
+                </p>
+              </div>
+            </div>
             <CardContent className="pt-4 space-y-4">
               {!isStudent ? (
                 <div>

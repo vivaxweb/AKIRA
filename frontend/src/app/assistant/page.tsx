@@ -14,8 +14,6 @@ import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
   Badge,
 } from "@/components/ui/CardsAndFeedback";
@@ -540,21 +538,19 @@ export default function AssistantPage() {
                 {documents.map((doc) => (
                   <Card key={doc.id} className="flex flex-col justify-between border-slate-200 hover:border-indigo-300 transition-all shadow-xs">
                     <div>
-                      <CardHeader className="mb-2">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="info">
-                              {CATEGORY_LABELS[doc.category] || doc.category}
-                            </Badge>
-                            <span className="text-[10px] text-slate-400">
-                              Updated {new Date(doc.updated_at).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <CardTitle className="text-sm font-bold text-slate-900 mt-1">
-                            {doc.title}
-                          </CardTitle>
+                      <div className="p-5 pb-2 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="info">
+                            {CATEGORY_LABELS[doc.category] || doc.category}
+                          </Badge>
+                          <span className="text-[10px] text-slate-400">
+                            Updated {new Date(doc.updated_at).toLocaleDateString()}
+                          </span>
                         </div>
-                      </CardHeader>
+                        <h3 className="text-sm font-bold text-slate-900 leading-snug">
+                          {doc.title}
+                        </h3>
+                      </div>
                       <CardContent>
                         <div className="line-clamp-4 text-xs text-slate-600 leading-relaxed font-normal bg-slate-50/70 p-2.5 rounded-lg border border-slate-100">
                           {doc.content}
