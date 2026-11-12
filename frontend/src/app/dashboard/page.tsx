@@ -2,7 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
+import { api } from "@/lib/api";
+import { ExecutiveDashboardKPIs } from "@/types";
 import { Card, CardHeader, CardTitle, Badge, Skeleton } from "@/components/ui/CardsAndFeedback";
 import { formatRole } from "@/lib/utils";
 import {
@@ -10,15 +13,27 @@ import {
   GraduationCap,
   CalendarCheck,
   FileSpreadsheet,
-  FileCheck2,
   ArrowRight,
   ShieldCheck,
   Clock,
   Sparkles,
+  AlertTriangle,
+  FolderGit2,
+  Download,
+  BookOpen,
 } from "lucide-react";
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth();
+
+  const isExecutive = user?.role === "HOD" || user?.role === "PRINCIPAL" || user?.role === "COORDINATOR";
+
+  // Fetch live executive KPIs
+  const { data: kpis } = useQuery<ExecutiveDashboardKPIs>({
+    queryKey: ["executive-dashboard-kpis"],
+    queryFn: () => api.get("/reports/executive-dashboard/"),
+    enabled: isExecutive,
+  });
 
   if (isLoading) {
     return (
@@ -60,6 +75,112 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Live Executive Institutional KPIs for Principal, HOD, and Coordinators */}
+      {isExecutive && kpis && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Real-Time Department Performance Indicators
+            </h3>
+            <span className="text-xs font-medium text-slate-400">
+              {kpis.total_students} Students · {kpis.total_faculty} Faculty
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {/* Avg Attendance */}
+            <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm">
+              <p className="text-[11px] font-semibold text-slate-500 uppercase">Avg Attendance</p>
+              <div className="flex items-baseline gap-1.5 mt-1">
+                <p className="text-xl font-bold text-slate-900">{kpis.avg_attendance}%</p>
+                <span
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                    kpis.avg_attendance >= 75
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-rose-50 text-rose-700"
+                  }`}
+                >
+                  {kpis.avg_attendance >= 75 ? "Target Met" : "Low"}
+                </span>
+              </div>
+            </div>
+
+            {/* High Risk Students */}
+            <Link
+              href="/insights/risk"
+              className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-rose-300 transition-colors block"
+            >
+              <p className="text-[11px] font-semibold text-slate-500 uppercase flex items-center justify-between">
+                <span>High Risk</span>
+                <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
+              </p>
+              <div className="flex items-baseline gap-1 mt-1">
+                <p className="text-xl font-bold text-rose-600">{kpis.high_risk_students_count}</p>
+                <span className="text-[11px] text-slate-400">students</span>
+              </div>
+            </Link>
+
+            {/* Capstones In Progress */}
+            <Link
+              href="/projects"
+              className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition-colors block"
+            >
+              <p className="text-[11px] font-semibold text-slate-500 uppercase flex items-center justify-between">
+                <span>Capstones</span>
+                <FolderGit2 className="w-3.5 h-3.5 text-indigo-500" />
+              </p>
+              <div className="flex items-baseline gap-1 mt-1">
+                <p className="text-xl font-bold text-slate-900">{kpis.active_projects}</p>
+                <span className="text-[11px] text-slate-400">active</span>
+              </div>
+            </Link>
+
+            {/* Syllabus Coverage */}
+            <Link
+              href="/academics/syllabus"
+              className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition-colors block"
+            >
+              <p className="text-[11px] font-semibold text-slate-500 uppercase flex items-center justify-between">
+                <span>Syllabus</span>
+                <BookOpen className="w-3.5 h-3.5 text-blue-500" />
+              </p>
+              <p className="text-xl font-bold text-slate-900 mt-1">
+                {kpis.syllabus_completion_rate}%
+              </p>
+            </Link>
+
+            {/* NBA Compliance */}
+            <Link
+              href="/accreditation"
+              className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-emerald-300 transition-colors block"
+            >
+              <p className="text-[11px] font-semibold text-slate-500 uppercase flex items-center justify-between">
+                <span>NBA Readiness</span>
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              </p>
+              <p className="text-xl font-bold text-emerald-600 mt-1">
+                {kpis.nba_compliance_rate}%
+              </p>
+            </Link>
+
+            {/* Logbook Reviews */}
+            <Link
+              href="/academics/logbook"
+              className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-amber-300 transition-colors block"
+            >
+              <p className="text-[11px] font-semibold text-slate-500 uppercase flex items-center justify-between">
+                <span>Pending Log</span>
+                <Clock className="w-3.5 h-3.5 text-amber-500" />
+              </p>
+              <div className="flex items-baseline gap-1 mt-1">
+                <p className="text-xl font-bold text-amber-600">{kpis.pending_logbook_reviews}</p>
+                <span className="text-[11px] text-slate-400">to verify</span>
+              </div>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Role-Specific Overview Shells */}
       {user.role === "HOD" && (
         <div className="space-y-6">
@@ -99,8 +220,8 @@ export default function DashboardPage() {
             <Card>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-medium text-slate-500">Academic Structure</p>
-                  <p className="text-lg font-bold text-slate-900 mt-1">Classes & Faculty</p>
+                  <p className="text-xs font-medium text-slate-500">Academic Operations</p>
+                  <p className="text-lg font-bold text-slate-900 mt-1">Structure & Logs</p>
                 </div>
                 <div className="p-2.5 bg-emerald-50 rounded-lg text-emerald-600">
                   <FileSpreadsheet className="h-5 w-5" />
@@ -116,16 +237,16 @@ export default function DashboardPage() {
             <Card>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-medium text-slate-500">Accreditation</p>
-                  <p className="text-lg font-bold text-slate-900 mt-1">NBA & NAAC</p>
+                  <p className="text-xs font-medium text-slate-500">Reports & Export</p>
+                  <p className="text-lg font-bold text-slate-900 mt-1">XLSX & PDF</p>
                 </div>
-                <div className="p-2.5 bg-amber-50 rounded-lg text-amber-600">
-                  <FileCheck2 className="h-5 w-5" />
+                <div className="p-2.5 bg-rose-50 rounded-lg text-rose-600">
+                  <Download className="h-5 w-5" />
                 </div>
               </div>
               <div className="mt-3">
-                <Link href="/accreditation" className="text-xs text-indigo-600 hover:underline flex items-center gap-1 font-medium">
-                  Evidence Index <ArrowRight className="h-3 w-3" />
+                <Link href="/reports" className="text-xs text-indigo-600 hover:underline flex items-center gap-1 font-medium">
+                  Export Center <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>
             </Card>
@@ -153,12 +274,12 @@ export default function DashboardPage() {
                 <span className="font-semibold text-slate-900">Digital Logbook Reviews</span>
                 <ArrowRight className="h-4 w-4 text-slate-400" />
               </Link>
-              <Link href="/documents" className="p-3 border border-slate-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50/30 transition-colors flex items-center justify-between">
-                <span className="font-semibold text-slate-900">Document Approvals</span>
+              <Link href="/accreditation" className="p-3 border border-slate-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50/30 transition-colors flex items-center justify-between">
+                <span className="font-semibold text-slate-900">NBA Criteria & Evidence</span>
                 <ArrowRight className="h-4 w-4 text-slate-400" />
               </Link>
               <Link href="/reports" className="p-3 border border-slate-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50/30 transition-colors flex items-center justify-between">
-                <span className="font-semibold text-slate-900">Report Generator</span>
+                <span className="font-semibold text-slate-900">Export Center (XLSX/PDF)</span>
                 <ArrowRight className="h-4 w-4 text-slate-400" />
               </Link>
             </div>
@@ -199,7 +320,7 @@ export default function DashboardPage() {
               <p className="mt-1 text-xs text-slate-500">Audits, Summary & Outcomes</p>
               <div className="mt-4">
                 <Link href="/reports" className="inline-flex items-center gap-1.5 text-xs text-indigo-600 font-semibold hover:underline">
-                  Generate Summary Reports <ArrowRight className="h-3.5 w-3.5" />
+                  Open Export Center <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             </Card>
@@ -209,7 +330,7 @@ export default function DashboardPage() {
 
       {(user.role === "FACULTY" || user.role === "COORDINATOR") && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <Card>
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-indigo-50 rounded-lg text-indigo-600">
@@ -222,7 +343,7 @@ export default function DashboardPage() {
               </div>
               <div className="mt-4">
                 <Link href="/academics/attendance" className="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1">
-                  Open Attendance Register <ArrowRight className="h-3.5 w-3.5" />
+                  Open Register <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             </Card>
@@ -239,7 +360,7 @@ export default function DashboardPage() {
               </div>
               <div className="mt-4">
                 <Link href="/academics/marks" className="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1">
-                  Manage Assessments <ArrowRight className="h-3.5 w-3.5" />
+                  Manage CIE <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             </Card>
@@ -256,7 +377,24 @@ export default function DashboardPage() {
               </div>
               <div className="mt-4">
                 <Link href="/academics/logbook" className="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1">
-                  Add Daily Log Entry <ArrowRight className="h-3.5 w-3.5" />
+                  Daily Log <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </Card>
+
+            <Card>
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-rose-50 rounded-lg text-rose-600">
+                  <Download className="h-5 w-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-slate-900">Reports Center</h4>
+                  <p className="text-xs text-slate-500">Download XLSX & PDF</p>
+                </div>
+              </div>
+              <div className="mt-4">
+                <Link href="/reports" className="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1">
+                  Export Center <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             </Card>
@@ -279,6 +417,15 @@ export default function DashboardPage() {
                   <span className="text-slate-500">Academic Year:</span>
                   <span className="font-semibold text-slate-800">2026-27</span>
                 </div>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-100">
+                <Link
+                  href="/reports"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download Progress Report Card (PDF)</span>
+                </Link>
               </div>
             </Card>
 

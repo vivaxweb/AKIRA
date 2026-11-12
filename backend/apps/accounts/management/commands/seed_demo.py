@@ -29,6 +29,7 @@ from django.core.files.base import ContentFile
 from apps.insights.models import Intervention
 from apps.projects.models import Project, ProjectMember, ProjectMilestone, SimilarityCheck
 from apps.communication.models import Notice, DepartmentEvent, DepartmentDocument
+from apps.reports.models import AccreditationCriteria, EvidenceLink
 
 
 STANDARD_POS = [
@@ -58,7 +59,14 @@ class Command(BaseCommand):
         demo_password = "Demo@12345"
 
         if reset:
-            self.stdout.write(self.style.WARNING("Reset flag provided. Purging existing database..."))
+            EvidenceLink.objects.all().delete()
+            AccreditationCriteria.objects.all().delete()
+            DepartmentDocument.objects.all().delete()
+            DepartmentEvent.objects.all().delete()
+            Notice.objects.all().delete()
+            ProjectMilestone.objects.all().delete()
+            ProjectMember.objects.all().delete()
+            Project.objects.all().delete()
             Intervention.objects.all().delete()
             AttendanceRecord.objects.all().delete()
             AttendanceSession.objects.all().delete()
@@ -757,9 +765,142 @@ class Command(BaseCommand):
                 doc_obj.file_type = d_info["file_name"].split(".")[-1].upper()
                 doc_obj.save(update_fields=["file", "file_size_bytes", "file_type"])
 
+        # 15. Accreditation & Reports (Phase 7)
+        demo_criteria = [
+            {
+                "code": "C1",
+                "title": "Vision, Mission and Program Educational Objectives (PEOs)",
+                "description": "Establishment, consistency, and dissemination of Department Vision, Mission, and PEOs with stakeholder involvement.",
+                "max_marks": 50,
+                "obtained_marks": Decimal("44.50"),
+                "status": AccreditationCriteria.Status.COMPLIANT,
+                "evidences": [
+                    {
+                        "title": "Department Vision-Mission Statement & Stakeholder PEO Approval Minutes",
+                        "description": "Official minutes from Department Advisory Board meeting ratifying PEO formulations.",
+                        "doc_title": "B.Tech Computer Science & Engineering Curriculum & Scheme (2026-27)",
+                        "proj_title": None,
+                        "url": "https://tkiet.ac.in/departments/cse/vision-mission",
+                    }
+                ],
+            },
+            {
+                "code": "C2",
+                "title": "Program Curriculum and Teaching-Learning Processes",
+                "description": "Curriculum structure, adherence to academic calendar, syllabus delivery progress, and ICT teaching pedagogies.",
+                "max_marks": 100,
+                "obtained_marks": Decimal("86.00"),
+                "status": AccreditationCriteria.Status.COMPLIANT,
+                "evidences": [
+                    {
+                        "title": "Autonomous Academic Calendar & Continuous Instruction Schedule",
+                        "description": "Term calendar demarcating 14-week instruction, CIE examination weeks, and remedial slots.",
+                        "doc_title": "Academic Calendar Even Semester 2026-27",
+                        "proj_title": None,
+                        "url": "",
+                    },
+                    {
+                        "title": "Laboratory Manual & Experimental Practice Coursework (CS501-L)",
+                        "description": "Hands-on DB queries, triggers, stored procedures, and practical experiment rubric.",
+                        "doc_title": "Database Management Systems Lab Manual & Practice Problems (CS501-L)",
+                        "proj_title": None,
+                        "url": "",
+                    },
+                ],
+            },
+            {
+                "code": "C3",
+                "title": "Course Outcomes and Program Outcomes (COs & POs)",
+                "description": "Attainment calculation methodology of Course Outcomes through CIE and indirect assessment exit surveys.",
+                "max_marks": 175,
+                "obtained_marks": Decimal("148.00"),
+                "status": AccreditationCriteria.Status.COMPLIANT,
+                "evidences": [
+                    {
+                        "title": "CIE Assessment Question Papers Mapped with Bloom's Taxonomy & COs",
+                        "description": "Audited internal examination question papers demonstrating CO-PO direct question mapping.",
+                        "doc_title": "Confidential: End-Semester Exam Question Paper Bank & Solution Scheme",
+                        "proj_title": None,
+                        "url": "",
+                    }
+                ],
+            },
+            {
+                "code": "C4",
+                "title": "Students' Performance & Capstone Projects",
+                "description": "Academic progression, placement conversion ratio, and student capstone multi-disciplinary project quality.",
+                "max_marks": 100,
+                "obtained_marks": Decimal("74.00"),
+                "status": AccreditationCriteria.Status.IN_PROGRESS,
+                "evidences": [
+                    {
+                        "title": "Exemplary Capstone Project: Crop Disease Detection Deep Learning",
+                        "description": "Completed student capstone engineering solution solving real-world agricultural problems.",
+                        "doc_title": None,
+                        "proj_title": "Smart Automated Crop Disease Detection using Deep Convolutional Neural Networks",
+                        "url": "https://github.com/tkiet-cse/crop-disease-detection",
+                    },
+                    {
+                        "title": "Standardized B.Tech Capstone Project Rubric & IEEE Format Template",
+                        "description": "Department dissertation formatting guidelines and milestone progress rubrics.",
+                        "doc_title": "B.Tech Capstone Project Report & Synopsis Standard Template",
+                        "proj_title": None,
+                        "url": "",
+                    },
+                ],
+            },
+            {
+                "code": "C5",
+                "title": "Faculty Information and Contributions",
+                "description": "Student-Faculty Ratio (SFR), cadre ratio, faculty retention, journal research publications, and PBAS appraisals.",
+                "max_marks": 175,
+                "obtained_marks": Decimal("135.00"),
+                "status": AccreditationCriteria.Status.NEEDS_ATTENTION,
+                "evidences": [
+                    {
+                        "title": "Annual PBAS Faculty Self-Appraisal & Research Portfolio Records",
+                        "description": "Standardized appraisal submissions for academic API scores and conference contributions.",
+                        "doc_title": "Faculty Annual Appraisal & Performance Based Appraisal System (PBAS) Form",
+                        "proj_title": None,
+                        "url": "",
+                    }
+                ],
+            },
+        ]
+
+        for crit in demo_criteria:
+            c_obj, _ = AccreditationCriteria.objects.update_or_create(
+                department=cse_dept,
+                code=crit["code"],
+                accreditation_body=AccreditationCriteria.Body.NBA,
+                defaults={
+                    "title": crit["title"],
+                    "description": crit["description"],
+                    "max_marks": crit["max_marks"],
+                    "obtained_marks": crit["obtained_marks"],
+                    "status": crit["status"],
+                },
+            )
+
+            for ev in crit["evidences"]:
+                doc_obj = DepartmentDocument.objects.filter(department=cse_dept, title=ev["doc_title"]).first() if ev["doc_title"] else None
+                proj_obj = Project.objects.filter(department=cse_dept, title=ev["proj_title"]).first() if ev["proj_title"] else None
+
+                EvidenceLink.objects.update_or_create(
+                    criteria=c_obj,
+                    title=ev["title"],
+                    defaults={
+                        "description": ev["description"],
+                        "document": doc_obj,
+                        "project": proj_obj,
+                        "external_url": ev["url"],
+                        "added_by": hod,
+                    },
+                )
+
         self.stdout.write(
             self.style.SUCCESS(
-                f"Phase 6 Seed completed!\n"
+                f"Phase 7 Seed completed!\n"
                 f"  - 1 Department (CSE) with AttainmentConfig\n"
                 f"  - 12 Standard Program Outcomes (PO1..PO12)\n"
                 f"  - 2 Class Groups (TE-CSE, BE-CSE)\n"
@@ -773,7 +914,8 @@ class Command(BaseCommand):
                 f"  - 6 Multi-Domain B.Tech Projects with Team Members and 30 Milestones\n"
                 f"  - 4 Department Notices (pinned, urgent, role-scoped)\n"
                 f"  - 4 Academic & Examination Events\n"
-                f"  - 6 Department Documents (public syllabi, templates, lab manuals & confidential faculty papers)"
+                f"  - 6 Department Documents (public syllabi, templates, lab manuals & confidential faculty papers)\n"
+                f"  - 5 NBA Accreditation Criteria with 7 Evidence Links (documents, capstone projects, URLs)"
             )
         )
 

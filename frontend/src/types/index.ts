@@ -538,5 +538,68 @@ export interface DepartmentDocument {
   updated_at: string;
 }
 
+export type AccreditationBody = "NBA" | "NAAC";
+export type AccreditationStatus = "COMPLIANT" | "IN_PROGRESS" | "NEEDS_ATTENTION" | "NOT_STARTED";
+
+export interface EvidenceLink {
+  id: number;
+  criteria: number;
+  title: string;
+  description: string;
+  document: number | null;
+  document_title?: string;
+  document_file_url?: string;
+  project: number | null;
+  project_title?: string;
+  external_url: string;
+  added_by: number | null;
+  added_by_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AccreditationCriteria {
+  id: number;
+  department: number;
+  code: string;
+  title: string;
+  description: string;
+  accreditation_body: AccreditationBody;
+  max_marks: number;
+  obtained_marks: number;
+  status: AccreditationStatus;
+  evidences_count?: number;
+  evidences?: EvidenceLink[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ExecutiveDashboardKPIs {
+  department_name: string;
+  total_students: number;
+  total_faculty: number;
+  total_projects: number;
+  active_projects: number;
+  completed_projects: number;
+  avg_attendance: number;
+  high_risk_students_count: number;
+  medium_risk_students_count: number;
+  low_risk_students_count: number;
+  syllabus_completion_rate: number;
+  covered_topics_count: number;
+  total_topics_count: number;
+  pending_logbook_reviews: number;
+  project_milestone_completion_rate: number;
+  open_interventions_count: number;
+  nba_compliance_rate: number;
+  nba_summary: {
+    total_criteria: number;
+    compliant: number;
+    in_progress: number;
+    needs_attention: number;
+    not_started: number;
+  };
+}
+
 
 

@@ -176,4 +176,32 @@ export const api = {
     }),
   delete: <T>(endpoint: string, options?: RequestOptions): Promise<T> =>
     apiClient<T>(endpoint, { ...options, method: "DELETE" }),
+  download: async (endpoint: string, filename: string): Promise<void> => {
+    const url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+    const headers = new Headers();
+    const token = getAccessToken();
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+    let res = await fetch(url, { headers });
+    if (res.status === 401) {
+      const retryToken = await refreshAccessToken();
+      if (retryToken) {
+        headers.set("Authorization", `Bearer ${retryToken}`);
+        res = await fetch(url, { headers });
+      }
+    }
+    if (!res.ok) {
+      throw new Error(`Download failed with status ${res.status}`);
+    }
+    const blob = await res.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(downloadUrl);
+    document.body.removeChild(a);
+  },
 };
