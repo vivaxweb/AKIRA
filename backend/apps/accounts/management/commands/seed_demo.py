@@ -26,6 +26,7 @@ from apps.academics.models import (
     LogbookEntry,
 )
 from apps.insights.models import Intervention
+from apps.projects.models import Project, ProjectMember, ProjectMilestone, SimilarityCheck
 
 
 STANDARD_POS = [
@@ -418,9 +419,157 @@ class Command(BaseCommand):
             },
         )
 
+        # 13. Projects & Milestones (Phase 5)
+        demo_projects = [
+            {
+                "title": "Smart Automated Crop Disease Detection using Deep Convolutional Neural Networks",
+                "abstract": "An automated agricultural inspection platform utilizing deep CNNs (ResNet-50 and MobileNetV3) for real-time leaf lesion classification. Integrated with edge cameras, providing farmers with disease diagnosis and recommended treatment remedies.",
+                "domain": "Machine Learning",
+                "batch_year": 2026,
+                "guide": faculty_members[0],
+                "leader": students[0].user,
+                "members": [students[1].user, students[2].user],
+                "status": Project.Status.APPROVED,
+                "github_url": "https://github.com/tkiet-cse/crop-disease-detection",
+                "live_url": "https://crop-ai.tkiet.ac.in",
+                "completed_count": 3,
+                "signed_off_count": 2,
+            },
+            {
+                "title": "Decentralized Peer-to-Peer Renewable Energy Trading on Ethereum",
+                "abstract": "Smart contract architecture enabling residential solar prosumers to auction excess photovoltaic energy peer-to-peer. Implements automated settlement using ERC-20 tokens with cryptographic micro-inverter verification.",
+                "domain": "Blockchain",
+                "batch_year": 2026,
+                "guide": faculty_members[1],
+                "leader": students[3].user,
+                "members": [students[4].user],
+                "status": Project.Status.IN_PROGRESS,
+                "github_url": "https://github.com/tkiet-cse/energy-trading-eth",
+                "live_url": "",
+                "completed_count": 2,
+                "signed_off_count": 2,
+            },
+            {
+                "title": "Real-Time Traffic Congestion Optimization via YOLOv8 and Reinforcement Learning",
+                "abstract": "Dynamic traffic signal timing controller driven by real-time vehicle density estimation using YOLOv8 computer vision. Deep Q-learning agents coordinate adjacent intersection green lights to minimize average queue wait times.",
+                "domain": "Computer Vision",
+                "batch_year": 2026,
+                "guide": faculty_members[2],
+                "leader": students[5].user,
+                "members": [students[6].user, students[7].user],
+                "status": Project.Status.APPROVED,
+                "github_url": "https://github.com/tkiet-cse/smart-traffic-yolo",
+                "live_url": "",
+                "completed_count": 2,
+                "signed_off_count": 1,
+            },
+            {
+                "title": "Cloud-Native Microservices Security Auditor with Open-Policy Agent",
+                "abstract": "Static and runtime security verification pipeline for Kubernetes and Terraform infrastructure. Uses Rego policies with Open Policy Agent (OPA) to enforce CIS benchmarks and automated vulnerability drift scanning.",
+                "domain": "Cloud Computing",
+                "batch_year": 2025,
+                "guide": faculty_members[0],
+                "leader": students[8].user,
+                "members": [students[9].user],
+                "status": Project.Status.COMPLETED,
+                "github_url": "https://github.com/tkiet-cse/cloud-opa-auditor",
+                "live_url": "https://opa-audit.demo.local",
+                "completed_count": 5,
+                "signed_off_count": 5,
+            },
+            {
+                "title": "IoT-Driven Cold Chain Monitoring and Vaccine Integrity Assurance",
+                "abstract": "Low-power ESP32 and cellular NB-IoT sensor nodes monitoring temperature, humidity, and vibration in vaccine transport coolers. Includes geofencing alerts, cryptographic tamper detection, and offline buffering.",
+                "domain": "IoT & Embedded",
+                "batch_year": 2027,
+                "guide": faculty_members[1],
+                "leader": students[10].user,
+                "members": [students[11].user],
+                "status": Project.Status.UNDER_REVIEW,
+                "github_url": "",
+                "live_url": "",
+                "completed_count": 1,
+                "signed_off_count": 0,
+            },
+            {
+                "title": "Cross-Platform Federated Learning for Mobile Keyboard Word Suggestion",
+                "abstract": "Privacy-preserving next-word prediction engine for on-device mobile keyboards. Uses federated averaging (FedAvg) over encrypted gradients to train an LSTM model without centralized user keystroke transmission.",
+                "domain": "Machine Learning",
+                "batch_year": 2027,
+                "guide": None,
+                "leader": students[12].user,
+                "members": [students[13].user],
+                "status": Project.Status.PROPOSED,
+                "github_url": "",
+                "live_url": "",
+                "completed_count": 0,
+                "signed_off_count": 0,
+            },
+        ]
+
+        standard_milestones = [
+            ("Synopsis & Problem Statement", "Project abstract, objective, and domain feasibility submission", 1),
+            ("SRS & Architecture Design", "Requirement specification and high-level architectural diagram", 2),
+            ("Mid-Term Evaluation", "Working core modules and midterm faculty review presentation", 3),
+            ("Prototype & Code Completion", "Complete software/hardware implementation and GitHub repo", 4),
+            ("Final Report & Viva", "Comprehensive project documentation and external examination", 5),
+        ]
+
+        for p_info in demo_projects:
+            project_obj, _ = Project.objects.update_or_create(
+                department=cse_dept,
+                title=p_info["title"],
+                defaults={
+                    "abstract": p_info["abstract"],
+                    "domain": p_info["domain"],
+                    "batch_year": p_info["batch_year"],
+                    "academic_year": "2026-27",
+                    "guide": p_info["guide"],
+                    "team_leader": p_info["leader"],
+                    "status": p_info["status"],
+                    "github_url": p_info["github_url"],
+                    "live_url": p_info["live_url"],
+                },
+            )
+
+            # Team Leader membership
+            ProjectMember.objects.get_or_create(
+                project=project_obj,
+                student=p_info["leader"],
+                defaults={"role_in_team": "Team Leader"},
+            )
+
+            # Teammates
+            for mem_user in p_info["members"]:
+                ProjectMember.objects.get_or_create(
+                    project=project_obj,
+                    student=mem_user,
+                    defaults={"role_in_team": "Member"},
+                )
+
+            # Milestones
+            for m_title, m_desc, m_order in standard_milestones:
+                is_comp = m_order <= p_info["completed_count"]
+                is_signed = m_order <= p_info["signed_off_count"]
+                remarks = "Approved by faculty guide with review notes." if is_signed else ""
+
+                ProjectMilestone.objects.update_or_create(
+                    project=project_obj,
+                    order=m_order,
+                    defaults={
+                        "title": m_title,
+                        "description": m_desc,
+                        "is_completed": is_comp,
+                        "completed_at": timezone.now() if is_comp else None,
+                        "guide_signed_off": is_signed,
+                        "signed_off_at": timezone.now() if is_signed else None,
+                        "guide_remarks": remarks,
+                    },
+                )
+
         self.stdout.write(
             self.style.SUCCESS(
-                f"Phase 4 Seed completed!\n"
+                f"Phase 5 Seed completed!\n"
                 f"  - 1 Department (CSE) with AttainmentConfig\n"
                 f"  - 12 Standard Program Outcomes (PO1..PO12)\n"
                 f"  - 2 Class Groups (TE-CSE, BE-CSE)\n"
@@ -430,7 +579,9 @@ class Command(BaseCommand):
                 f"  - 3 Published Assessments with marks grid\n"
                 f"  - 4 Course Outcomes & CO-PO Mappings\n"
                 f"  - 10 Digital Logbook Entries (reviewed & pending)\n"
-                f"  - 3 Logged Student Risk Interventions"
+                f"  - 3 Logged Student Risk Interventions\n"
+                f"  - 6 Multi-Domain B.Tech Projects with Team Members and 30 Milestones"
             )
         )
+
 

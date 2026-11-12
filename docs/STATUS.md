@@ -7,7 +7,7 @@
 | Phase 2 — Frontend foundation and design system | PASSED | 2026-11-12 | 9195d63 |
 | Phase 3 — Academic Operations | PASSED | 2026-11-12 | 1e5c373 |
 | Phase 4 — Student & Faculty Intelligence | PASSED | 2026-11-12 | 0508537 |
-| Phase 5 — Project Repository & Similarity Detection | NOT STARTED | - | - |
+| Phase 5 — Project Repository & Similarity Detection | PASSED | 2026-11-12 | de9f0e4 |
 | Phase 6 — Communication & Document Library | NOT STARTED | - | - |
 | Phase 7 — Reports, Accreditation, Dashboards | NOT STARTED | - | - |
 | Phase 8 — Hardening, seed data, docs, packaging | NOT STARTED | - | - |
@@ -203,6 +203,49 @@ How to verify by hand:
 3. Open `http://localhost:3000/insights/risk` to view the early warning risk roster. Inspect students with low attendance and grade drops. Click "Log Intervention" to record a counselling session.
 4. Open `http://localhost:3000/insights/students` to see the Attendance vs Marks correlation scatter plot, risk distribution donut chart, and assessment pass-rate progression. Select a student in the deep-dive dropdown to inspect their subject attendance breakdown and marks timeline.
 5. Open `http://localhost:3000/insights/faculty` to inspect faculty teaching hours, syllabus completion rates, and digital logbook compliance.
+
+---
+
+## Phase 5 — Project Repository & Similarity Detection — PASSED
+Built:
+- `apps/projects/models.py`:
+  - `Project`: title, abstract, domain, batch_year, academic_year, team_leader, guide, github_url, live_url, status (`PROPOSED`, `UNDER_REVIEW`, `APPROVED`, `IN_PROGRESS`, `COMPLETED`, `REJECTED`), rejection_reason.
+  - `ProjectMember`: project, student, role_in_team ("Team Leader" / "Member"), unique together.
+  - `ProjectMilestone`: project, title, description, due_date, order, is_completed, completed_at, guide_signed_off, signed_off_at, guide_remarks.
+  - `SimilarityCheck`: input_title, input_abstract, similarity_score, matched_project, match_details, checked_by.
+- `apps/projects/similarity.py`:
+  - Hybrid NLP duplicate detection engine combining TF-IDF n-grams (1, 2) on title and combined title+abstract with sublinear term-frequency scaling and cosine similarity.
+  - Returns maximum similarity percentage (0-100), duplicate risk flag (threshold >= 60.0%), and ranked top matching projects with guide and batch information.
+- `apps/projects/serializers.py`: `ProjectListSerializer`, `ProjectDetailSerializer` (with automated milestone generation and team member binding), `ProjectMilestoneSerializer`, and `SimilarityCheckRequest/ResponseSerializer`.
+- `apps/projects/views.py`: `ProjectViewSet` with department filtering, `my_projects` scoping, `change-status`, and `assign-guide` actions; `ProjectMilestoneViewSet` with `toggle-complete` and `sign-off` actions; `SimilarityCheckView` API endpoint.
+- `apps/projects/permissions.py`: Role-scoped permissions ensuring students only edit their own proposals in draft states, while guides/HOD approve status and sign off milestones.
+- `apps/projects/tests/test_projects.py`: 7 automated tests covering duplicate idea detection (>60% flag), distinct ideas (<40%), empty corpus, student proposal creation with default 5 milestones, guide status update permissions, guide milestone sign-offs, and similarity endpoint API.
+- `apps/accounts/management/commands/seed_demo.py`: Seeded 6 realistic B.Tech capstone projects across batches 2025-2027 in Machine Learning, Blockchain, Computer Vision, Cloud Computing, and IoT, complete with team members and 30 milestone items.
+- `frontend/src/app/projects/page.tsx`:
+  - Capstone project catalog with search, domain filter, batch filter, status filter, and "My Associated Projects" tab.
+  - Interactive project detail modal with abstract, team roster, guide details, status change controls, and 5-stage milestone timeline with completion checkboxes and guide sign-off inputs.
+  - "Submit New Project" modal with live instant similarity detection: debounced TF-IDF meter alerting students in real-time if their proposed idea has high duplicate overlap (>60%) with existing department projects.
+
+Commands run & results:
+- `.venv\Scripts\python.exe -m pytest apps/projects/tests/test_projects.py -v` → 7 passed in 49.77s
+- `.venv\Scripts\python.exe -m pytest -v` → 45 passed in 367.85s
+- `npm run lint` → ✔ No ESLint warnings or errors
+- `npm run build` → 20 static routes compiled successfully, `/projects` First Load JS: 134 kB (all routes ≤ 134 kB, budget ≤ 170 kB)
+
+Tests: 45 backend tests passed, frontend TypeScript and ESLint 0 errors, production build passed.
+
+Not implemented / partial: None for Phase 5.
+Assumptions added: None new (AMP-001 through AMP-010 apply).
+
+How to verify by hand:
+1. Start backend and frontend with `.\scripts\run-backend.ps1` and `.\scripts\run-frontend.ps1`.
+2. Login as `student01@demo.local` with `Demo@12345`.
+3. Open `http://localhost:3000/projects` to browse the capstone project repository.
+4. Click "Submit New Project". Type a duplicate title: *"Smart Automated Crop Disease Detection using Deep Convolutional Neural Networks"* and note the instant similarity meter surging to >75% with a red Duplicate Warning banner listing the existing match!
+5. Change to a unique idea (e.g. *"Autonomous Subsea Drone for Coral Reef Acoustic Mapping"*) and observe the meter drop to 0% with a green "Unique Idea" badge.
+6. Open any project to view its 5-stage milestone timeline. As student, toggle completion on a milestone.
+7. Login as `faculty1@demo.local`, open the same project, and click "Sign Off" on the completed milestone to record formal guide verification with remarks.
+
 
 
 

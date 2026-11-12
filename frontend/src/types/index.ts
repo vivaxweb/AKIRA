@@ -383,3 +383,79 @@ export interface FacultyWorkloadReport {
   }>;
 }
 
+export type ProjectStatus =
+  | "PROPOSED"
+  | "UNDER_REVIEW"
+  | "APPROVED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "REJECTED";
+
+export interface ProjectMember {
+  id: number;
+  student: number;
+  student_name: string;
+  student_email: string;
+  student_roll: string;
+  role_in_team: string;
+  joined_at: string;
+}
+
+export interface ProjectMilestone {
+  id: number;
+  project: number;
+  title: string;
+  description: string;
+  due_date: string | null;
+  order: number;
+  is_completed: boolean;
+  completed_at: string | null;
+  guide_signed_off: boolean;
+  signed_off_at: string | null;
+  guide_remarks: string;
+}
+
+export interface Project {
+  id: number;
+  title: string;
+  abstract: string;
+  domain: string;
+  batch_year: number;
+  academic_year: string;
+  department: number;
+  status: ProjectStatus;
+  rejection_reason?: string;
+  team_leader: number;
+  team_leader_name: string;
+  team_leader_roll?: string;
+  guide: number | null;
+  guide_name: string;
+  github_url: string;
+  live_url: string;
+  member_count?: number;
+  completed_milestones?: number;
+  total_milestones?: number;
+  members?: ProjectMember[];
+  milestones?: ProjectMilestone[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SimilarityMatch {
+  id: number;
+  title: string;
+  domain: string;
+  batch_year: number;
+  similarity_pct: number;
+  status: ProjectStatus;
+  guide_name: string;
+}
+
+export interface SimilarityCheckResponse {
+  max_score: number;
+  is_flagged: boolean;
+  matched_project_id: number | null;
+  top_matches: SimilarityMatch[];
+}
+
+
