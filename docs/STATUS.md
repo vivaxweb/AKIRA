@@ -5,7 +5,7 @@
 | Phase 0 — Scaffolding and environment verification | PASSED | 2026-11-12 | 69b792d |
 | Phase 1 — Backend foundation: accounts, roles, auth | PASSED | 2026-11-12 | 9ad4e02 |
 | Phase 2 — Frontend foundation and design system | PASSED | 2026-11-12 | 9195d63 |
-| Phase 3 — Academic Operations | PASSED | 2026-11-12 | pending |
+| Phase 3 — Academic Operations | PASSED | 2026-11-12 | 1e5c373 |
 | Phase 4 — Student & Faculty Intelligence | NOT STARTED | - | - |
 | Phase 5 — Project Repository & Similarity Detection | NOT STARTED | - | - |
 | Phase 6 — Communication & Document Library | NOT STARTED | - | - |
