@@ -23,10 +23,19 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = React.useState(false);
 
-  // If on login or public error pages, render without sidebar shell
-  const isPublicPage = pathname === "/login" || pathname === "/404" || pathname === "/403";
+  // If on root, login, or public error pages, render without sidebar shell
+  const isPublicPage = pathname === "/" || pathname === "/login" || pathname === "/404" || pathname === "/403";
   if (isPublicPage) {
     return <>{children}</>;
+  }
+
+  // If user is not authenticated yet, do not render sidebar shell
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+      </div>
+    );
   }
 
   const navItems = getNavItemsForRole(user?.role);

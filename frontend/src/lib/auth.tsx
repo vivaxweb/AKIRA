@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     if (isLoading) return;
 
-    const isPublicPage = pathname === "/login" || pathname === "/404" || pathname === "/403";
+    const isPublicPage = pathname === "/" || pathname === "/login" || pathname === "/404" || pathname === "/403";
 
     if (!user && !isPublicPage) {
       router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
