@@ -293,23 +293,83 @@ class Command(BaseCommand):
             defaults={"year": 4, "semester": 7, "coordinator": faculty_members[0]},
         )
 
-        # 5. Students (40 students: 30 in TE-CSE-A, 10 in BE-CSE-A)
+        # 5. Real TKIET Students (Top from 2026-27 Roll Call List)
+        # Format: (grn, roll, gender, first_name, last_name)
+        # Student 01 is Vivek Desai (Roll 121); Roll 140 (Prathamesh Jadhav) & Roll 153 (Prathamesh Lohar) included
+        real_students_data = [
+            ("26MCA27161", "121", "Male", "Vivek", "Desai"),
+            ("26MCA27176", "102", "Female", "Saniya", "Ambi"),
+            ("26MCA27242", "103", "Female", "Sakshi", "Bade"),
+            ("26MCA27237", "104", "Male", "Samir", "Bamnekar"),
+            ("26MCA27238", "105", "Female", "Pradnya", "Barale"),
+            ("26MCA27182", "106", "Female", "Mrunali", "Bhagat"),
+            ("26MCA27230", "107", "Female", "Amruta", "Bhakte"),
+            ("26MCA27229", "108", "Female", "Amruta", "Bhakte"),
+            ("26MCA27186", "109", "Female", "Sanika", "Bhoite"),
+            ("26MCA27194", "110", "Female", "Riya", "Bhosale"),
+            ("26MCA27157", "111", "Female", "Monika", "Bodake"),
+            ("26MCA27180", "112", "Female", "Sakshi", "Borgaonkar"),
+            ("26MCA27179", "113", "Female", "Shweta", "Chavare"),
+            ("26MCA27216", "114", "Male", "Akash", "Chougale"),
+            ("26MCA27129", "115", "Female", "Vaishnavi", "Chougale"),
+            ("26MCA27187", "116", "Male", "Abhishek", "Chougule"),
+            ("26MCA27245", "117", "Female", "Snehal", "Chougule"),
+            ("26MCA27149", "118", "Male", "Suprit", "Daingade"),
+            ("26MCA27222", "119", "Female", "Shruti", "Dalavi"),
+            ("26MCA27210", "120", "Male", "Sourabh", "Demanna"),
+            ("26MCA27155", "101", "Female", "Sanika", "Ajamane"),
+            ("26MCA27200", "122", "Female", "Vaidavi", "Deshmukh"),
+            ("26MCA27152", "123", "Female", "Krutika", "Deshpande"),
+            ("26MCA27226", "124", "Female", "Netra", "Devalkar"),
+            ("26MCA27227", "125", "Female", "Payal", "Dhavale"),
+            ("26MCA27166", "126", "Female", "Vaishnavi", "Etam"),
+            ("26MCA27209", "127", "Male", "Sanket", "Gaikwad"),
+            ("26MCA27241", "128", "Female", "Chaitra", "Gavali"),
+            ("26MCA27228", "129", "Male", "Rohit", "Gawade"),
+            ("26MCA27158", "130", "Male", "Aditya", "Ghewari"),
+            ("26MCA27255", "131", "Male", "Rakesh", "Ghorpade"),
+            ("26MCA27251", "132", "Male", "Adesh", "Girmal"),
+            ("26MCA27213", "133", "Male", "Abhishek", "Godbole"),
+            ("26MCA27215", "134", "Male", "Satej", "Gurav"),
+            ("26MCA27139", "135", "Male", "Dipak", "Hande"),
+            ("26MCA27177", "136", "Female", "Shraddha", "Hande"),
+            ("26MCA27235", "137", "Female", "Puja", "Harane"),
+            ("26MCA27247", "138", "Female", "Suhani", "Hucche"),
+            ("26MCA27199", "139", "Female", "Nandini", "Jadhav"),
+            ("26MCA27195", "140", "Male", "Prathamesh", "Jadhav"),
+            ("26MCA27168", "141", "Female", "Shrutika", "Jadhav"),
+            ("26MCA27214", "142", "Female", "Tanmayee", "Jadhav"),
+            ("26MCA27212", "143", "Female", "Aarti", "Jangale"),
+            ("26MCA27211", "144", "Female", "Pradnya", "Kadam"),
+            ("26MCA27218", "145", "Female", "Anuja", "Kajave"),
+            ("26MCA27153", "146", "Female", "Rajnandini", "Kamble"),
+            ("26MCA27239", "147", "Female", "Shruti", "Kamble"),
+            ("26MCA27165", "148", "Male", "Tanmay", "Kamble"),
+            ("26MCA27159", "149", "Male", "Darshan", "Karagir"),
+            ("26MCA27145", "150", "Female", "Pranoti", "Katkar"),
+            ("26MCA27167", "153", "Male", "Prathamesh", "Lohar"),
+        ]
+
         students = []
-        for i in range(1, 41):
+        for i, (grn, roll, gender, fn, ln) in enumerate(real_students_data, start=1):
             email = f"student{i:02d}@demo.local"
-            roll = f"23CSE{i:03d}"
-            cg = te_cse_a if i <= 30 else be_cse_a
+            roll_str = f"26MCA{roll}"
+            cg = te_cse_a if i <= 35 else be_cse_a
             s_user, _ = User.objects.get_or_create(
                 email=email,
-                defaults={"first_name": "Demo", "last_name": f"Student {i:02d}", "role": User.Role.STUDENT, "department": cse_dept},
+                defaults={"first_name": fn, "last_name": ln, "role": User.Role.STUDENT, "department": cse_dept},
             )
+            s_user.first_name = fn
+            s_user.last_name = ln
             s_user.set_password(demo_password)
             s_user.save()
-            sp, _ = StudentProfile.objects.get_or_create(
+            sp, _ = StudentProfile.objects.update_or_create(
                 user=s_user,
-                defaults={"roll_no": roll, "class_group": cg, "admission_year": 2023 if i <= 30 else 2022},
+                defaults={"roll_no": roll_str, "class_group": cg, "admission_year": 2026},
             )
             students.append(sp)
+
+        student_by_roll = {sp.roll_no: sp for sp in students}
 
         # 6. Subjects (6 subjects)
         subjects_data = [
@@ -554,8 +614,8 @@ class Command(BaseCommand):
                 "domain": "Machine Learning",
                 "batch_year": 2026,
                 "guide": faculty_members[0],
-                "leader": students[0].user,
-                "members": [students[1].user, students[2].user],
+                "leader": student_by_roll["26MCA121"].user,
+                "members": [student_by_roll["26MCA140"].user, student_by_roll["26MCA153"].user],
                 "status": Project.Status.APPROVED,
                 "github_url": "https://github.com/tkiet-cse/crop-disease-detection",
                 "live_url": "https://crop-ai.tkiet.ac.in",
@@ -1111,7 +1171,7 @@ class Command(BaseCommand):
                 f"  - 12 Standard Program Outcomes (PO1..PO12)\n"
                 f"  - 2 Class Groups (TE-CSE, BE-CSE)\n"
                 f"  - 6 Subjects with faculty allocations\n"
-                f"  - 40 Students (with deliberate below-75% attendance & mark drops for M3 risk analytics)\n"
+                f"  - 51 Students (Real TKIET 2026-27 MCA Roll Call List with deliberate below-75% attendance & mark drops for M3 risk analytics)\n"
                 f"  - 22 Attendance Sessions with records\n"
                 f"  - 3 Published Assessments with marks grid\n"
                 f"  - 4 Course Outcomes & CO-PO Mappings\n"

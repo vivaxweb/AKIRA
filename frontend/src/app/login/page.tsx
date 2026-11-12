@@ -143,7 +143,7 @@ export default function LoginPage() {
                 onClick={() => fillDemo("student01@demo.local")}
                 className="col-span-2 p-2 border border-slate-200 rounded-lg text-left hover:bg-slate-50 text-slate-700 transition-colors"
               >
-                <div className="font-semibold text-slate-900">Student 01 (Roll: 23CSE001)</div>
+                <div className="font-semibold text-slate-900 truncate">Student 01 (Vivek Desai - 26MCA121)</div>
                 <div className="text-[10px] text-slate-500">student01@demo.local</div>
               </button>
             </div>
