@@ -4,7 +4,7 @@
 |---|---|---|---|
 | Phase 0 — Scaffolding and environment verification | PASSED | 2026-11-12 | 69b792d |
 | Phase 1 — Backend foundation: accounts, roles, auth | PASSED | 2026-11-12 | 9ad4e02 |
-| Phase 2 — Frontend foundation and design system | NOT STARTED | - | - |
+| Phase 2 — Frontend foundation and design system | PASSED | 2026-11-12 | pending |
 | Phase 3 — Academic Operations | NOT STARTED | - | - |
 | Phase 4 — Student & Faculty Intelligence | NOT STARTED | - | - |
 | Phase 5 — Project Repository & Similarity Detection | NOT STARTED | - | - |
@@ -85,4 +85,46 @@ How to verify by hand:
 1. Run `.\backend\.venv\Scripts\python.exe backend\manage.py seed_demo --reset` to seed demo accounts.
 2. In PowerShell or curl, call `POST http://127.0.0.1:8000/api/v1/auth/login/` with `{"email": "hod@demo.local", "password": "Demo@12345"}` and verify JWT tokens and user payload are returned.
 3. Call `GET http://127.0.0.1:8000/api/v1/auth/me/` with `Authorization: Bearer <access>` to view the authenticated profile.
+
+---
+
+## Phase 2 — Frontend foundation and design system — PASSED
+Built:
+- Design system: Slate neutral palette, Indigo 600 accent, responsive layout, accessible typography
+- Core UI Primitives: `Button`, `Input`, `Select`, `Textarea`, `Badge`, `Card`, `Skeleton`, `EmptyState`, `ProgressBar`, `Pagination`, `Dialog` (Modal), `Table`, `Toast` notifications
+- API Client (`src/lib/api.ts`): Bearer JWT headers, silent token refresh on 401, query parameter serialization, and structured API error handling
+- Client Providers (`src/lib/providers.tsx`): TanStack Query v5 with 30s `staleTime`, AuthProvider, ToastProvider
+- Navigation system (`src/lib/nav.ts`): Role-aware sidebar filtering strictly according to the permission matrix
+- Layout shell (`src/components/layout/AppLayout.tsx`): Fixed sidebar on desktop, collapsible mobile menu, header with department indicator, notification icon, user dropdown with role badge, and sign-out
+- Application routes:
+  - `/login`: Clean, centered sign-in form with one-click demo login quick-fill buttons for evaluators
+  - `/dashboard`: Role-specific overview cards populated with live user identity from `/auth/me/`
+  - `/settings/profile`: Profile update form and password change with validation
+  - `/admin/users`: HOD user directory with debounced search, role filter, server pagination, modal for single user creation, user active/inactive toggle, and CSV student batch importer with per-row error summary
+  - `/403`: Accessible restricted access page with return-to-dashboard action
+  - `/not-found`: 404 page
+  - `/error`: Global error boundary with retry capability
+
+Commands run & results:
+- `npx tsc --noEmit` → 0 errors
+- `npm run lint` → ✔ No ESLint warnings or errors
+- `npm run build` → Compiled successfully
+- First Load JS measurements:
+  - `/login`: 104 kB (budget ≤ 170 kB)
+  - `/dashboard`: 113 kB (budget ≤ 170 kB)
+  - `/admin/users`: 107 kB (budget ≤ 170 kB)
+  - `/settings/profile`: 105 kB (budget ≤ 170 kB)
+  - `/403`: 97.6 kB (budget ≤ 170 kB)
+- Live backend verification: Logged in as all 5 roles (`principal@demo.local`, `hod@demo.local`, `faculty1@demo.local`, `coordinator@demo.local`, `student01@demo.local`), confirmed `/auth/me/` = 200 for all, `/users/` = 200 for HOD & Principal, `/users/` = 403 Forbidden for Faculty, Coordinator, and Student.
+
+Tests: Frontend TypeScript and ESLint 0 errors, production build passed, 22 backend tests passing.
+
+Not implemented / partial: None for Phase 2.
+Assumptions added: None new (AMP-007, AMP-010 apply).
+
+How to verify by hand:
+1. Start frontend with `.\scripts\run-frontend.ps1` and open `http://localhost:3000/login`.
+2. Click any of the 5 demo login buttons (e.g. "HOD" or "Student 01") and sign in.
+3. Observe role-specific dashboard and navigation. Try navigating to `http://localhost:3000/admin/users` as a student to see the 403 access restricted view.
+
 
