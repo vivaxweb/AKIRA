@@ -9,7 +9,7 @@
 | Phase 4 — Student & Faculty Intelligence | PASSED | 2026-11-12 | 0508537 |
 | Phase 5 — Project Repository & Similarity Detection | PASSED | 2026-11-12 | 7ce33ad |
 | Phase 6 — Communication & Document Library | PASSED | 2026-11-12 | cd05ea9 |
-| Phase 7 — Reports, Accreditation, Dashboards | NOT STARTED | - | - |
+| Phase 7 — Reports, Accreditation, Dashboards | PASSED | 2026-11-12 | 5ca6ea7 |
 | Phase 8 — Hardening, seed data, docs, packaging | NOT STARTED | - | - |
 | Phase 9 — Deployment (Optional) | PREPARED, NOT EXECUTED | - | - |
 | Phase 10 — AI Knowledge Assistant (RAG) | NOT STARTED | - | - |
@@ -281,6 +281,52 @@ How to verify by hand:
 4. Open `http://localhost:3000/communication/events` to inspect the academic timeline, CIE-2 exam slots, and capstone presentation dates.
 5. Open `http://localhost:3000/documents` to browse public syllabi and templates. Click "Download" to trigger the file download and increment the counter. Notice that confidential faculty question papers are completely hidden from the student view.
 6. Login as `hod@demo.local`, open `http://localhost:3000/documents`, and observe the confidential end-semester question paper and faculty appraisal form with restricted staff badges.
+
+---
+
+## Phase 7 — Reports, Accreditation, Dashboards — PASSED
+Built:
+- `apps/reports/models.py`:
+  - `AccreditationCriteria`: code, title, description, accreditation_body ("NBA" / "NAAC"), max_marks, obtained_marks, status (`COMPLIANT`, `IN_PROGRESS`, `NEEDS_ATTENTION`, `NOT_STARTED`), department.
+  - `EvidenceLink`: criteria, title, description, document (FK `DepartmentDocument`), project (FK `Project`), external_url, added_by.
+- `apps/reports/services.py`:
+  - `generate_attendance_excel(class_group_id, subject_id)` (openpyxl): Styled institutional spreadsheet with session slots, present/absent counts, %, and eligibility indicators.
+  - `generate_marks_excel(subject_id)` (openpyxl): Continuous internal evaluation spreadsheet with assessment components, class averages, and grade outcomes.
+  - `generate_copo_attainment_excel(subject_id)` (openpyxl): 2-sheet workbook with direct CO attainment score calculation and full PO1..PO12 weighted correlation matrix.
+  - `generate_student_progress_pdf(student_id)` (reportlab): Official institutional progress report card with college headers, academic standing, subject attendance table, CIE marks breakdown, capstone project allocation, and three signature blocks.
+  - `get_executive_dashboard_kpis()`: Real-time aggregator for institutional performance (average attendance, high-risk students, syllabus pace, NBA readiness rate, pending logbook reviews).
+- `apps/reports/serializers.py`, `views.py`, `permissions.py`, `urls.py`:
+  - ViewSets for criteria and evidence links with HOD/Coordinator management scoping.
+  - Dedicated export endpoints with binary content headers for XLSX and PDF downloads.
+  - Executive dashboard endpoint providing live metrics for Principal, HOD, and Coordinators.
+- `apps/reports/tests/test_reports.py`: 6 automated tests validating XLSX file structure, PDF generation, criteria evidence linking, and executive dashboard KPIs.
+- `apps/accounts/management/commands/seed_demo.py`: Extended to seed Criteria 1 through Criteria 5 of NBA Tier-II framework with 7 evidence links to real documents, projects, and department URLs.
+- `frontend/src/app/accreditation/page.tsx`: NBA & NAAC quality assurance dashboard with status badges, score meters, linked evidence drawer, and evidence attachment modals.
+- `frontend/src/app/reports/page.tsx`: 1-Click Export Center with dedicated cards for Attendance XLSX, Internal Marks XLSX, CO-PO Attainment XLSX, and Student Progress Card PDF.
+- `frontend/src/app/dashboard/page.tsx`: Live executive performance bar displaying department attendance, high-risk rosters, capstone projects, syllabus completion, and NBA compliance.
+
+Commands run & results:
+- `.venv\Scripts\python.exe -m pytest apps/reports/tests/test_reports.py -v` → 6 passed in 12.62s
+- `.venv\Scripts\python.exe -m pytest -v` → 58 passed in 104.70s
+- `npm run lint` → ✔ No ESLint warnings or errors
+- `npm run build` → 27 static routes compiled successfully, all First Load JS bundles ≤ 136 kB (budget ≤ 170 kB)
+
+Tests: 58 backend tests passed, frontend TypeScript and ESLint 0 errors, production build passed.
+
+Not implemented / partial: None for Phase 7.
+Assumptions added: None new (AMP-001 through AMP-010 apply).
+
+How to verify by hand:
+1. Start backend and frontend with `.\scripts\run-backend.ps1` and `.\scripts\run-frontend.ps1`.
+2. Login as `hod@demo.local` with `Demo@12345`.
+3. Open `http://localhost:3000/dashboard` and observe the live Executive Performance Indicators: Average Attendance (79.2%), High Risk Students, Capstones In Progress, Syllabus Completion %, and NBA Readiness Rate (60%).
+4. Open `http://localhost:3000/accreditation` to view the 5 NBA Criteria. Click on Criterion C1 or C4 to inspect linked evidence documents and capstone projects. Click "Add Evidence" to attach a new item.
+5. Open `http://localhost:3000/reports` to test the 1-Click Export Center. Download:
+   - Attendance Register (XLSX) for CS501
+   - Internal Assessment Marks Sheet (XLSX) for CS501
+   - CO-PO Attainment Calculation (XLSX) for CS501
+   - Student Comprehensive Progress Report (PDF)
+6. Login as `student01@demo.local` with `Demo@12345`. Open `http://localhost:3000/reports` and click "Download Progress Report (PDF)" to verify student self-service report card download.
 
 
 
