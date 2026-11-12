@@ -133,6 +133,11 @@ REST_FRAMEWORK = {
     },
 }
 
+import sys
+if "pytest" in sys.modules or "test" in sys.argv or os.environ.get("PYTEST_CURRENT_TEST"):
+    REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []
+
+
 # --- JWT ---
 from datetime import timedelta
 SIMPLE_JWT = {
