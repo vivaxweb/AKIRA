@@ -5,7 +5,7 @@
 | Phase 0 — Scaffolding and environment verification | PASSED | 2026-11-12 | 69b792d |
 | Phase 1 — Backend foundation: accounts, roles, auth | PASSED | 2026-11-12 | 9ad4e02 |
 | Phase 2 — Frontend foundation and design system | PASSED | 2026-11-12 | 9195d63 |
-| Phase 3 — Academic Operations | NOT STARTED | - | - |
+| Phase 3 — Academic Operations | PASSED | 2026-11-12 | pending |
 | Phase 4 — Student & Faculty Intelligence | NOT STARTED | - | - |
 | Phase 5 — Project Repository & Similarity Detection | NOT STARTED | - | - |
 | Phase 6 — Communication & Document Library | NOT STARTED | - | - |
@@ -126,5 +126,48 @@ How to verify by hand:
 1. Start frontend with `.\scripts\run-frontend.ps1` and open `http://localhost:3000/login`.
 2. Click any of the 5 demo login buttons (e.g. "HOD" or "Student 01") and sign in.
 3. Observe role-specific dashboard and navigation. Try navigating to `http://localhost:3000/admin/users` as a student to see the 403 access restricted view.
+
+---
+
+## Phase 3 — Academic Operations — PASSED
+Built:
+- `apps/academics/models.py`: `Subject`, `ClassGroup`, `SyllabusTopic`, `TopicCoverage`, `AttendanceSession`, `AttendanceRecord`, `Assessment`, `Mark`, `ProgramOutcome`, `CourseOutcome`, `COPOMapping`, `AssessmentCO`, `AttainmentConfig`, `LogbookEntry`
+- `apps/academics/services.py`: Direct CO attainment computation engine mapping student mark percentages against department thresholds (levels 0..3), derived PO attainment weighted average, student attendance percentage and low-attendance cutoff calculations
+- `apps/academics/permissions.py`: Subject-level faculty permissions, logbook HOD review permissions, student read-only checks
+- `apps/academics/serializers.py`: Serializers for full academics suite, bulk attendance session save, bulk marks spreadsheet save with atomic database transactions
+- `apps/academics/views.py`: ViewSets for ClassGroup, Subject, Topic, TopicCoverage, AttendanceSession with bulk record endpoints, Assessment with bulk marks save, LogbookEntry with HOD review action, CO & PO attainment computation endpoints
+- `apps/academics/admin.py`: Comprehensive Django admin registration for all academic models
+- `apps/accounts/management/commands/seed_demo.py`: Extended to seed 2 class groups (`TE-CSE`, `BE-CSE`), 6 subjects, 12 engineering POs, 4 COs with PO correlations for DBMS, 3 assessments, 90 student marks entries, 22 attendance sessions with deliberate below-75% attendance students, and 10 digital logbook entries
+- `frontend/src/app/academics/`:
+  - `structure/page.tsx`: Class groups, subjects, teaching allocations, coordinator assignments
+  - `attendance/page.tsx`: Interactive roster with one-click toggles, past session viewer, student personal statistics with cutoff warnings
+  - `marks/page.tsx`: Keyboard-friendly marks grid, absent toggles, publishing, validation against `max_marks`
+  - `syllabus/page.tsx`: Unit breakdowns, planned hours progress bar, coverage logging modal
+  - `co-po/page.tsx`: Direct CO attainment scores, correlation matrix, derived PO values, department formula default notification
+  - `logbook/page.tsx`: Daily faculty entry creation, topics taught log, HOD supervisory review modal
+- Test suite: `apps/academics/tests/test_academics.py` (7 tests: bulk attendance idempotency, marks validation, hand-computed CO attainment math, permissions)
+
+Commands run & results:
+- `.venv\Scripts\python.exe -m pytest apps/academics/tests/test_academics.py -v` → 7 passed in 75.51s
+- `.venv\Scripts\python.exe -m pytest -v` → 29 passed in 200.70s
+- `npx tsc --noEmit` → 0 errors
+- `npm run lint` → 0 errors
+- `npm run build` → 16 static routes compiled successfully, all First Load JS bundles ≤ 108 kB
+
+Tests: 29 backend tests passed, frontend TypeScript and ESLint 0 errors, production build passed.
+
+Not implemented / partial: None for Phase 3.
+Assumptions added:
+- AMP-005: Direct CO attainment credits full assessment weight to linked COs without splitting.
+
+How to verify by hand:
+1. Start backend and frontend with `.\scripts\run-backend.ps1` and `.\scripts\run-frontend.ps1`.
+2. Login as `faculty1@demo.local` with `Demo@12345`.
+3. Open `http://localhost:3000/academics/attendance`, mark attendance for DBMS, and save.
+4. Open `http://localhost:3000/academics/marks`, enter CIE marks, and publish.
+5. Open `http://localhost:3000/academics/co-po`, select DBMS, and observe live calculated CO attainment scores and derived PO values.
+6. Open `http://localhost:3000/academics/logbook` and log a daily teaching entry.
+7. Login as `hod@demo.local`, open `http://localhost:3000/academics/logbook`, and review/verify the pending entry.
+
 
 
