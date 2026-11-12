@@ -1,35 +1,72 @@
-# Department Digital Hub
+# AKIRA — Department Digital Hub
 
 A centralized, enterprise-grade web platform for academic operations, student and faculty intelligence, capstone project repository with NLP duplicate-idea detection, role-scoped communication, accreditation and report generation, and an AI knowledge assistant for college engineering departments.
 
+> **Repository**: [https://github.com/vivaxweb/AKIRA](https://github.com/vivaxweb/AKIRA)  
 > **B.Tech Final-Year Project** (Academic Year 2026-27)  
 > Department of Computer Science & Engineering  
 > Tatyasaheb Kore Institute of Engineering & Technology (TKIET), Warananagar
 
 ---
 
-## 1. Quick Start (Windows 11 / PowerShell)
+## 🤖 1-Click Automated Setup with Antigravity
+If you are using **Google Antigravity** (or another AI coding assistant), open this repository and paste the prompt found in:
+👉 **[`SETUP_PROMPT.md`](SETUP_PROMPT.md)**
+
+The assistant will autonomously prepare Python `.venv`, install packages, configure `.env`, run SQLite migrations, seed full demo data, and verify frontend & backend readiness!
+
+---
+
+## 1. Quick Start
 
 ### Prerequisites
-- **Python**: 3.11 or higher (Python 3.14.2 verified)
-- **Node.js**: v18 or higher (v22.18.0 LTS verified)
-- **PowerShell**: 5.1+ or PowerShell 7+
+- **Python**: 3.11, 3.12, 3.13 (or 3.14) — *Ensure "Add python.exe to PATH" was selected during install*
+- **Node.js**: v18, v20, or v22 LTS (includes `npm`)
 - **Git**: Installed
+- **PowerShell**: 5.1+ or PowerShell 7+ (on Windows) or Bash (on Linux/macOS)
 
-### One-Command Setup
-Clone or unzip the repository, open PowerShell in the project root, and run:
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/vivaxweb/AKIRA.git
+cd AKIRA
+```
+
+### Step 2: Automated One-Command Setup (Windows / PowerShell)
+In PowerShell from the project root:
 
 ```powershell
 .\scripts\setup.ps1
 ```
 
-This single command will:
-1. Create a Python virtual environment in `backend\.venv`
-2. Install all pinned backend dependencies
+> **Note (PowerShell Execution Policy)**: If Windows prevents running `.ps1` scripts, run this once:
+> `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`
+
+#### Manual Step-by-Step Setup (Alternative / macOS / Linux):
+```bash
+# Backend Setup
+cd backend
+python -m venv .venv
+# On Windows: .venv\Scripts\activate | On Mac/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+python manage.py migrate --run-syncdb
+python manage.py seed_demo
+cd ..
+
+# Frontend Setup
+cd frontend
+cp .env.example .env.local
+npm install
+cd ..
+```
+
+This will:
+1. Create a Python virtual environment in `backend/.venv`
+2. Install all backend dependencies
 3. Generate local `.env` and `.env.local` configurations
-4. Run migrations using the zero-setup SQLite database
-5. Seed realistic demo accounts and full academic datasets
-6. Install frontend dependencies in `frontend\node_modules`
+4. Run migrations using the zero-setup SQLite database (`db.sqlite3`)
+5. Seed realistic demo accounts and full academic datasets (`python manage.py seed_demo`)
+6. Install frontend dependencies in `frontend/node_modules`
 
 ---
 
