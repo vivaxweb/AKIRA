@@ -246,3 +246,140 @@ export interface LogbookEntry {
   hod_reviewed_at: string | null;
   created_at: string;
 }
+
+export interface StudentRiskProfile {
+  student_id: number;
+  full_name: string;
+  email: string;
+  roll_number: string;
+  class_group_id: number | null;
+  class_group_name: string;
+  overall_attendance_pct: number;
+  total_sessions: number;
+  attended_sessions: number;
+  marks_avg_pct: number;
+  failed_assessments_count: number;
+  failed_assessments: Array<{
+    assessment_name: string;
+    subject_code: string;
+    pct: number;
+    is_absent: boolean;
+  }>;
+  grade_drops: Array<{
+    subject_code: string;
+    from_assessment: string;
+    from_pct: number;
+    to_assessment: string;
+    to_pct: number;
+    drop: number;
+  }>;
+  risk_level: "HIGH" | "MEDIUM" | "LOW";
+  risk_flags: {
+    attendance: boolean;
+    failing: boolean;
+    grade_drop: boolean;
+  };
+  risk_reasons: string[];
+  subject_attendance: Array<{
+    subject_id: number;
+    subject_code: string;
+    subject_name: string;
+    total_sessions: number;
+    attended_sessions: number;
+    attendance_pct: number;
+  }>;
+  interventions_count: number;
+  latest_intervention: {
+    id: number;
+    type: string;
+    status: string;
+    created_at: string;
+    remarks: string;
+  } | null;
+}
+
+export interface Intervention {
+  id: number;
+  student: number;
+  student_name: string;
+  student_roll: string;
+  student_email: string;
+  intervention_type: "COUNSELING" | "REMEDIAL" | "PARENT_MEETING" | "ATTENDANCE_WARNING";
+  intervention_type_display: string;
+  status: "PLANNED" | "IN_PROGRESS" | "RESOLVED";
+  status_display: string;
+  reason: string;
+  remarks: string;
+  action_taken: string;
+  created_by?: number;
+  created_by_name: string;
+  created_at: string;
+  updated_at: string;
+  resolved_at: string | null;
+}
+
+export interface StudentAnalyticsSummary {
+  total_students: number;
+  high_risk_count: number;
+  medium_risk_count: number;
+  low_risk_count: number;
+  attendance_risk_count: number;
+  grade_drop_count: number;
+  failing_count: number;
+  average_attendance_pct: number;
+  average_marks_pct: number;
+  risk_breakdown: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
+  scatter_points: Array<{
+    student_id: number;
+    name: string;
+    roll_no: string;
+    attendance_pct: number;
+    marks_avg_pct: number;
+    risk_level: "HIGH" | "MEDIUM" | "LOW";
+  }>;
+  assessment_trends: Array<{
+    assessment_id: number;
+    assessment_name: string;
+    subject_code: string;
+    date: string;
+    average_pct: number;
+    pass_rate_pct: number;
+    total_students: number;
+  }>;
+}
+
+export interface FacultyWorkloadReport {
+  faculty_count: number;
+  total_teaching_hours: number;
+  faculty: Array<{
+    faculty_id: number;
+    faculty_name: string;
+    email: string;
+    designation: string;
+    weekly_teaching_hours: number;
+    subjects_count: number;
+    subjects: Array<{
+      subject_id: number;
+      code: string;
+      name: string;
+      class_group: string;
+      weekly_hours: number;
+      total_topics: number;
+      covered_topics: number;
+      coverage_pct: number;
+    }>;
+    total_topics: number;
+    covered_topics: number;
+    overall_coverage_pct: number;
+    logbook_entries_count: number;
+    pending_logbook_reviews: number;
+    verified_logbook_reviews: number;
+    last_logbook_date: string | null;
+    compliance_status: "EXCELLENT" | "GOOD" | "NEEDS_ATTENTION";
+  }>;
+}
+

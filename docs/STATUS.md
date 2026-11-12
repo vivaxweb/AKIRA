@@ -6,7 +6,7 @@
 | Phase 1 — Backend foundation: accounts, roles, auth | PASSED | 2026-11-12 | 9ad4e02 |
 | Phase 2 — Frontend foundation and design system | PASSED | 2026-11-12 | 9195d63 |
 | Phase 3 — Academic Operations | PASSED | 2026-11-12 | 1e5c373 |
-| Phase 4 — Student & Faculty Intelligence | NOT STARTED | - | - |
+| Phase 4 — Student & Faculty Intelligence | PASSED | 2026-11-12 | 0508537 |
 | Phase 5 — Project Repository & Similarity Detection | NOT STARTED | - | - |
 | Phase 6 — Communication & Document Library | NOT STARTED | - | - |
 | Phase 7 — Reports, Accreditation, Dashboards | NOT STARTED | - | - |
@@ -168,6 +168,42 @@ How to verify by hand:
 5. Open `http://localhost:3000/academics/co-po`, select DBMS, and observe live calculated CO attainment scores and derived PO values.
 6. Open `http://localhost:3000/academics/logbook` and log a daily teaching entry.
 7. Login as `hod@demo.local`, open `http://localhost:3000/academics/logbook`, and review/verify the pending entry.
+
+---
+
+## Phase 4 — Student & Faculty Intelligence — PASSED
+Built:
+- `apps/insights/models.py`: `Intervention` model tracking student early interventions with status (`OPEN`, `IN_PROGRESS`, `RESOLVED`, `CLOSED`), category, reason, remarks, action taken, created by faculty/HOD, and resolved timestamp.
+- `apps/insights/services.py`:
+  - Rule-based Student Risk Classification Engine (`calculate_student_risk_profile`): flags attendance <75% (overall or subject-wise), failure in >=2 assessments (<40%), and performance drops (>=15% drop between consecutive assessments). Assigns risk tier `HIGH`, `MEDIUM`, or `LOW` with human-readable rationale list.
+  - Class Performance & Correlation Aggregator (`get_student_analytics_summary`): computes class average attendance %, CIE average %, risk distribution, attendance-vs-marks scatter coordinates, assessment progression trends, and single-student timeline deep-dive.
+  - Faculty Workload Aggregator (`get_faculty_workload_analytics`): weekly teaching hours, syllabus topic completion pace, and logbook HOD review compliance.
+- `apps/insights/views.py`: REST endpoints for `/insights/student-risk/`, `/insights/student-analytics/`, `/insights/faculty-workload/`, and `InterventionViewSet` with custom `/resolve/` action.
+- `apps/insights/tests/test_insights.py`: 9 comprehensive automated tests validating risk classification logic, endpoint scoping, student privacy isolation, and intervention workflows.
+- `frontend/src/app/insights/`:
+  - `risk/page.tsx`: Early warning risk roster, KPI summary cards, filter by risk level, intervention logging modal, and resolution history modal.
+  - `students/page.tsx`: Class-level KPI cards, dynamic code-split `StudentCharts.tsx` with Recharts ScatterChart (attendance vs marks), Donut chart (risk distribution), BarChart (assessment progression), and individual student drill-down timeline.
+  - `faculty/page.tsx`: Faculty workload cards, weekly credit hours, syllabus progress bars, and logbook review compliance indicators.
+- Bundle optimization: Dynamic Next.js code-splitting for Recharts components in `StudentCharts.tsx`, keeping all route bundles ≤ 132 kB.
+
+Commands run & results:
+- `.venv\Scripts\python.exe -m pytest apps/insights/tests/test_insights.py -v` → 9 passed in 30.52s
+- `.venv\Scripts\python.exe -m pytest -v` → 38 passed in 209.41s
+- `npm run lint` → ✔ No ESLint warnings or errors
+- `npm run build` → 19 static routes compiled successfully, First Load JS bundles ≤ 132 kB (budget ≤ 170 kB)
+
+Tests: 38 backend tests passed, frontend TypeScript and ESLint 0 errors, production build passed.
+
+Not implemented / partial: None for Phase 4.
+Assumptions added: None new (AMP-001 through AMP-010 apply).
+
+How to verify by hand:
+1. Start backend and frontend with `.\scripts\run-backend.ps1` and `.\scripts\run-frontend.ps1`.
+2. Login as `hod@demo.local` with `Demo@12345`.
+3. Open `http://localhost:3000/insights/risk` to view the early warning risk roster. Inspect students with low attendance and grade drops. Click "Log Intervention" to record a counselling session.
+4. Open `http://localhost:3000/insights/students` to see the Attendance vs Marks correlation scatter plot, risk distribution donut chart, and assessment pass-rate progression. Select a student in the deep-dive dropdown to inspect their subject attendance breakdown and marks timeline.
+5. Open `http://localhost:3000/insights/faculty` to inspect faculty teaching hours, syllabus completion rates, and digital logbook compliance.
+
 
 
 

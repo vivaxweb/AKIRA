@@ -51,6 +51,10 @@ export function CardTitle({ className, children, ...props }: React.HTMLAttribute
   return <h3 className={cn("text-base font-semibold text-slate-900", className)} {...props}>{children}</h3>;
 }
 
+export function CardContent({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn("pt-0", className)} {...props}>{children}</div>;
+}
+
 // --- Skeleton ---
 export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (

@@ -70,6 +70,9 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     def full_name(self):
         return f"{self.first_name} {self.last_name}".strip()
 
+    def get_full_name(self):
+        return self.full_name
+
     def is_faculty_like(self):
         return self.role in (self.Role.FACULTY, self.Role.COORDINATOR)
 

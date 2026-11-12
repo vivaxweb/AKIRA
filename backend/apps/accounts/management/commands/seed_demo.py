@@ -25,6 +25,7 @@ from apps.academics.models import (
     AttainmentConfig,
     LogbookEntry,
 )
+from apps.insights.models import Intervention
 
 
 STANDARD_POS = [
@@ -55,6 +56,7 @@ class Command(BaseCommand):
 
         if reset:
             self.stdout.write(self.style.WARNING("Reset flag provided. Purging existing database..."))
+            Intervention.objects.all().delete()
             AttendanceRecord.objects.all().delete()
             AttendanceSession.objects.all().delete()
             Mark.objects.all().delete()
@@ -376,9 +378,49 @@ class Command(BaseCommand):
                 },
             )
 
+        # 12. Student Risk Interventions
+        st26_user = students[25].user  # student26 (grade drop)
+        st28_user = students[27].user  # student28 (attendance 68.2%)
+        st29_user = students[28].user  # student29 (attendance 54.5%)
+
+        Intervention.objects.get_or_create(
+            student=st26_user,
+            intervention_type=Intervention.InterventionType.COUNSELING,
+            defaults={
+                "reason": "Performance drop observed between CIE-1 and CIE-2 in DBMS.",
+                "remarks": "One-on-one academic counseling held. Student experienced health issues during CIE-2 week. Guidance provided for remedial revision.",
+                "status": Intervention.Status.IN_PROGRESS,
+                "created_by": faculty_members[0],
+            },
+        )
+
+        Intervention.objects.get_or_create(
+            student=st28_user,
+            intervention_type=Intervention.InterventionType.ATTENDANCE_WARNING,
+            defaults={
+                "reason": "Attendance dropped to 68.2%, below mandatory 75% cutoff.",
+                "remarks": "Official attendance notice issued. Student informed of condonation criteria and required makeup lecture schedule.",
+                "status": Intervention.Status.RESOLVED,
+                "action_taken": "Student signed attendance undertaking and attended 4 makeup sessions.",
+                "created_by": coordinator,
+                "resolved_at": timezone.now(),
+            },
+        )
+
+        Intervention.objects.get_or_create(
+            student=st29_user,
+            intervention_type=Intervention.InterventionType.REMEDIAL,
+            defaults={
+                "reason": "Critically low attendance (54.5%) and failed CIE-2 assessment.",
+                "remarks": "Assigned to special remedial lab sessions every Saturday. Parent meeting scheduled for next week.",
+                "status": Intervention.Status.PLANNED,
+                "created_by": faculty_members[0],
+            },
+        )
+
         self.stdout.write(
             self.style.SUCCESS(
-                f"Phase 3 Academic Operations seed completed!\n"
+                f"Phase 4 Seed completed!\n"
                 f"  - 1 Department (CSE) with AttainmentConfig\n"
                 f"  - 12 Standard Program Outcomes (PO1..PO12)\n"
                 f"  - 2 Class Groups (TE-CSE, BE-CSE)\n"
@@ -387,6 +429,8 @@ class Command(BaseCommand):
                 f"  - 22 Attendance Sessions with records\n"
                 f"  - 3 Published Assessments with marks grid\n"
                 f"  - 4 Course Outcomes & CO-PO Mappings\n"
-                f"  - 10 Digital Logbook Entries (reviewed & pending)"
+                f"  - 10 Digital Logbook Entries (reviewed & pending)\n"
+                f"  - 3 Logged Student Risk Interventions"
             )
         )
+

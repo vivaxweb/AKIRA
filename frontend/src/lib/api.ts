@@ -152,3 +152,28 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
 
   return response.json();
 }
+
+export const api = {
+  get: <T>(endpoint: string, options?: RequestOptions): Promise<T> =>
+    apiClient<T>(endpoint, { ...options, method: "GET" }),
+  post: <T>(endpoint: string, body?: unknown, options?: RequestOptions): Promise<T> =>
+    apiClient<T>(endpoint, {
+      ...options,
+      method: "POST",
+      body: body !== undefined ? (body instanceof FormData ? body : JSON.stringify(body)) : undefined,
+    }),
+  patch: <T>(endpoint: string, body?: unknown, options?: RequestOptions): Promise<T> =>
+    apiClient<T>(endpoint, {
+      ...options,
+      method: "PATCH",
+      body: body !== undefined ? (body instanceof FormData ? body : JSON.stringify(body)) : undefined,
+    }),
+  put: <T>(endpoint: string, body?: unknown, options?: RequestOptions): Promise<T> =>
+    apiClient<T>(endpoint, {
+      ...options,
+      method: "PUT",
+      body: body !== undefined ? (body instanceof FormData ? body : JSON.stringify(body)) : undefined,
+    }),
+  delete: <T>(endpoint: string, options?: RequestOptions): Promise<T> =>
+    apiClient<T>(endpoint, { ...options, method: "DELETE" }),
+};
