@@ -1,0 +1,12 @@
+"""Health endpoint test — Phase 0 gate."""
+import pytest
+
+
+@pytest.mark.django_db
+def test_health_endpoint(client):
+    response = client.get("/api/v1/health/")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert "django_version" in data
+    assert data["service"] == "Department Digital Hub API"
