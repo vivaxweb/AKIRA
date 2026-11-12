@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import {
@@ -248,20 +247,19 @@ export default function AssistantPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="space-y-5">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <Sparkles className="w-7 h-7 text-indigo-600" />
-              Department Knowledge Assistant
-            </h1>
-            <p className="text-sm text-slate-500 mt-1">
-              Interactive RAG assistant for academic rules, course syllabi, capstone guidelines & placement norms.
-            </p>
-          </div>
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+            <Sparkles className="w-7 h-7 text-indigo-600" />
+            AKIRA AI Knowledge Assistant
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Autonomous RAG assistant for academic rules, course syllabi, capstone guidelines &amp; placement norms.
+          </p>
         </div>
+      </div>
         {/* Top Control Bar & Badges */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200">
           <div className="flex items-center gap-2">
@@ -600,6 +598,5 @@ export default function AssistantPage() {
           </div>
         )}
       </div>
-    </AppLayout>
   );
 }

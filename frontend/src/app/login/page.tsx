@@ -5,7 +5,6 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useToast } from "@/components/ui/Toast";
-import { Building2 } from "lucide-react";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -48,16 +47,21 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-indigo-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="mx-auto h-12 w-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-sm mb-4">
-          <Building2 className="h-6 w-6" />
+        <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-tr from-indigo-500 via-violet-500 to-pink-500 flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-indigo-500/30 mb-3 border border-white/20">
+          A
         </div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900">
-          Department Digital Hub
-        </h2>
-        <p className="mt-1 text-xs text-slate-500 font-medium">
-          Computer Science & Engineering · TKIET Warananagar (2026-27)
+        <div className="flex items-center justify-center gap-2">
+          <h2 className="text-3xl font-black tracking-widest text-white">
+            AKIRA
+          </h2>
+          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/30 text-indigo-300 border border-indigo-400/30">
+            HUB
+          </span>
+        </div>
+        <p className="mt-1 text-xs text-slate-300 font-medium">
+          Department Digital Hub · Computer Science & Engineering · TKIET
         </p>
       </div>
 

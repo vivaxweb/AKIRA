@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent, Badge, Skeleton, EmptyState } from "@/components/ui/CardsAndFeedback";
@@ -152,9 +151,8 @@ export default function AcademicRiskPage() {
   const gradeDropCount = riskProfiles.filter((s) => s.risk_flags.grade_drop).length;
 
   return (
-    <AppLayout>
-      <div className="space-y-6">
-        {/* Header */}
+    <div className="space-y-6">
+      {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Academic Risk Engine</h1>
@@ -647,6 +645,5 @@ export default function AcademicRiskPage() {
           </div>
         </Dialog>
       </div>
-    </AppLayout>
   );
 }

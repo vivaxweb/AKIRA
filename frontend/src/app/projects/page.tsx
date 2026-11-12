@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import {
@@ -325,9 +324,8 @@ export default function ProjectRepositoryPage() {
     (activeProject && activeProject.guide === user?.id);
 
   return (
-    <AppLayout>
-      <div className="space-y-6">
-        {/* Header */}
+    <div className="space-y-6">
+      {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
@@ -1092,6 +1090,5 @@ export default function ProjectRepositoryPage() {
           )}
         </Dialog>
       </div>
-    </AppLayout>
   );
 }

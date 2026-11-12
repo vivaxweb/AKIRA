@@ -4,8 +4,8 @@ import { Providers } from "@/lib/providers";
 import { AppLayout } from "@/components/layout/AppLayout";
 
 export const metadata: Metadata = {
-  title: "Department Digital Hub | CSE TKIET",
-  description: "Academic operations, analytics, project repository, and communication platform for Computer Science & Engineering.",
+  title: "AKIRA | Department Digital Hub · CSE TKIET",
+  description: "AKIRA — Autonomous Academic operations, student analytics, capstone project repository, and AI assistant for Computer Science & Engineering.",
 };
 
 export default function RootLayout({

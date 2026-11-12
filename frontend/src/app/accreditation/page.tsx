@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import {
@@ -181,9 +180,8 @@ export default function AccreditationPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="space-y-6">
-        {/* Header */}
+    <div className="space-y-6">
+      {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
           <div>
             <div className="flex items-center gap-2">
@@ -655,6 +653,5 @@ export default function AccreditationPage() {
           </div>
         </Dialog>
       </div>
-    </AppLayout>
   );
 }

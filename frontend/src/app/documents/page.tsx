@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { DepartmentDocument, DocumentCategory, Role } from "@/types";
@@ -10,8 +9,6 @@ import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
   Skeleton,
 } from "@/components/ui/CardsAndFeedback";
@@ -143,9 +140,8 @@ export default function DocumentLibraryPage() {
     user?.role === "COORDINATOR";
 
   return (
-    <AppLayout>
-      <div className="space-y-6">
-        {/* Header */}
+    <div className="space-y-6">
+      {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
@@ -235,8 +231,8 @@ export default function DocumentLibraryPage() {
                   key={doc.id}
                   className="flex flex-col justify-between hover:shadow-md transition-shadow border-slate-200"
                 >
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="p-5 pb-2 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
                         {doc.category.replace("_", " ")}
                       </span>
@@ -255,10 +251,10 @@ export default function DocumentLibraryPage() {
                       </div>
                     </div>
 
-                    <CardTitle className="text-base font-bold text-slate-900 leading-snug">
+                    <h3 className="text-base font-bold text-slate-900 leading-snug">
                       {doc.title}
-                    </CardTitle>
-                  </CardHeader>
+                    </h3>
+                  </div>
 
                   <CardContent className="pt-0 space-y-4 flex-1 flex flex-col justify-between">
                     <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed">
@@ -414,6 +410,5 @@ export default function DocumentLibraryPage() {
           </form>
         </Dialog>
       </div>
-    </AppLayout>
   );
 }

@@ -53,24 +53,30 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6">
+      <div className="rounded-2xl border border-slate-200/90 bg-gradient-to-r from-white via-indigo-50/30 to-white p-6 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold text-slate-900">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] font-black tracking-widest text-indigo-700 bg-indigo-100/70 border border-indigo-200 px-2 py-0.5 rounded-full uppercase">
+                AKIRA PLATFORM
+              </span>
+              <span className="text-xs text-slate-400 font-medium">AY 2026-27</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">
                 Welcome back, {user.first_name}!
               </h2>
-              <Badge variant="info">{formatRole(user.role)}</Badge>
+              <Badge variant="info" className="font-bold">{formatRole(user.role)}</Badge>
             </div>
-            <p className="mt-1 text-xs text-slate-500">
-              {user.department_name ? `${user.department_name} (${user.department_code})` : "Institution-wide scope"}
-              {" · "}Academic Year 2026-27
+            <p className="mt-1 text-xs text-slate-500 font-medium">
+              {user.department_name ? `${user.department_name} (${user.department_code})` : "Computer Science & Engineering"}
+              {" · "}TKIET Warananagar
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 self-start md:self-auto">
-            <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-            <span>Role-Based Access Verified</span>
+          <div className="flex items-center gap-2 text-xs text-slate-700 bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs self-start md:self-auto">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="font-semibold text-slate-800">Department Hub Verified</span>
           </div>
         </div>
       </div>

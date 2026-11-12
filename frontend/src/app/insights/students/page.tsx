@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { Select } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent, Badge, Skeleton } from "@/components/ui/CardsAndFeedback";
 import { api } from "@/lib/api";
@@ -92,9 +91,8 @@ export default function StudentAnalyticsPage() {
   const scatterData = analytics?.scatter_points || [];
 
   return (
-    <AppLayout>
-      <div className="space-y-6">
-        {/* Header */}
+    <div className="space-y-6">
+      {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Student Performance Analytics</h1>
@@ -346,6 +344,5 @@ export default function StudentAnalyticsPage() {
           </CardContent>
         </Card>
       </div>
-    </AppLayout>
   );
 }
