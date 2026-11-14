@@ -123,8 +123,10 @@ class Command(BaseCommand):
         # 3. Staff accounts: Principal, HOD, Coordinator, Faculty members
         principal, _ = User.objects.get_or_create(
             email="principal@demo.local",
-            defaults={"first_name": "Dr. D. N.", "last_name": "Mudgal", "role": User.Role.PRINCIPAL, "is_staff": True},
+            defaults={"first_name": "Dr. D. N.", "last_name": "Mudgal", "role": User.Role.PRINCIPAL, "is_staff": True, "is_superuser": True},
         )
+        principal.is_staff = True
+        principal.is_superuser = True
         principal.set_password(demo_password)
         principal.save()
 
@@ -138,11 +140,14 @@ class Command(BaseCommand):
                 "department": cse_dept,
                 "phone": "9975419483",
                 "is_staff": True,
+                "is_superuser": True,
             },
         )
         hod.first_name = "Ramgouda"
         hod.last_name = "Patil"
         hod.phone = "9975419483"
+        hod.is_staff = True
+        hod.is_superuser = True
         hod.set_password(demo_password)
         hod.save()
         FacultyProfile.objects.update_or_create(
