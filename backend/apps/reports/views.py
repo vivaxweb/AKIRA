@@ -25,6 +25,7 @@ from .services import (
     generate_copo_attainment_excel,
     generate_student_progress_pdf,
     get_executive_dashboard_kpis,
+    generate_nba_audit_excel,
 )
 
 
@@ -211,3 +212,27 @@ class ExecutiveDashboardView(APIView):
 
         kpis = get_executive_dashboard_kpis(department_id=dept_id)
         return Response(kpis, status=status.HTTP_200_OK)
+
+
+class NBAAuditExportView(APIView):
+    """
+    GET /api/v1/reports/nba-audit-export/
+    Generates and returns an official multi-sheet NBA Self-Assessment and Audit Report XLSX
+    synthesizing cross-module data across all department operations.
+    """
+    permission_classes = [CanExportAcademicReports]
+
+    def get(self, request, *args, **kwargs):
+        dept_id = request.query_params.get("department_id")
+        if not dept_id and hasattr(request.user, "department_id"):
+            dept_id = request.user.department_id
+
+        xlsx_data = generate_nba_audit_excel(department_id=dept_id)
+        filename = "nba_accreditation_audit_report.xlsx"
+
+        response = HttpResponse(
+            xlsx_data,
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return response

@@ -1,5 +1,5 @@
 """
-Django settings for Department Digital Hub.
+Django settings for EduSync Academic Hub.
 Env-driven: DATABASE_URL selects Postgres (production) or SQLite (default for local dev).
 """
 import os
@@ -168,8 +168,8 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # --- Spectacular (OpenAPI) ---
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Department Digital Hub API",
-    "DESCRIPTION": "API for the CSE Department Digital Hub - TKIET Warananagar (Academic Year 2026-27)",
+    "TITLE": "EduSync Academic Hub API",
+    "DESCRIPTION": "API for the CSE EduSync Academic Hub - TKIET Warananagar (Academic Year 2026-27)",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SCHEMA_PATH_PREFIX": "/api/v1",

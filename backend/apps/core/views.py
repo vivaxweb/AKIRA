@@ -17,6 +17,6 @@ class HealthView(APIView):
         return Response({
             "status": "ok",
             "django_version": django.get_version(),
-            "service": "Department Digital Hub API",
+            "service": "EduSync Academic Hub API",
             "version": "1.0.0",
         })

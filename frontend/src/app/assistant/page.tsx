@@ -251,7 +251,7 @@ export default function AssistantPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
             <Sparkles className="w-7 h-7 text-indigo-600" />
-            AKIRA AI Knowledge Assistant
+            EduSync AI Knowledge Assistant
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Autonomous RAG assistant for academic rules, course syllabi, capstone guidelines &amp; placement norms.
@@ -483,7 +483,7 @@ export default function AssistantPage() {
                 </div>
                 <div className="flex items-center justify-between mt-2 text-[10px] text-slate-400 px-1">
                   <span>Press Enter to send. Supports autonomous regulation retrieval & citations.</span>
-                  <span>TKIET CSE Department Hub</span>
+                  <span>TKIET CSE EduSync Academic Hub</span>
                 </div>
               </div>
             </Card>

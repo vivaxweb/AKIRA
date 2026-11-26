@@ -9,7 +9,7 @@ export default function NotFound() {
       </div>
       <h1 className="text-2xl font-bold text-slate-900">404 — Page Not Found</h1>
       <p className="mt-2 text-sm text-slate-500 max-w-md">
-        The requested URL or operational screen does not exist in the Department Digital Hub.
+        The requested URL or operational screen does not exist in the EduSync Academic Hub.
       </p>
       <div className="mt-6">
         <Link

@@ -9,6 +9,7 @@ from .views import (
     COPOExportView,
     StudentProgressPDFView,
     ExecutiveDashboardView,
+    NBAAuditExportView,
 )
 
 router = DefaultRouter()
@@ -16,6 +17,7 @@ router.register(r"reports/criteria", AccreditationCriteriaViewSet, basename="acc
 router.register(r"reports/evidence", EvidenceLinkViewSet, basename="evidence-link")
 
 urlpatterns = [
+    path("reports/nba-audit-export/", NBAAuditExportView.as_view(), name="reports-nba-audit-export"),
     path("reports/attendance-export/", AttendanceExportView.as_view(), name="attendance-export"),
     path("reports/marks-export/", MarksExportView.as_view(), name="marks-export"),
     path("reports/copo-export/", COPOExportView.as_view(), name="copo-export"),

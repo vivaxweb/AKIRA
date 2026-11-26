@@ -47,6 +47,7 @@ export default function ReportsExportPage() {
   const [isExportingMarks, setIsExportingMarks] = useState(false);
   const [isExportingCopo, setIsExportingCopo] = useState(false);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [isExportingNBA, setIsExportingNBA] = useState(false);
 
   // Fetch subjects
   const { data: subjectsData } = useQuery<{ results?: Subject[] } | Subject[]>({
@@ -137,6 +138,21 @@ export default function ReportsExportPage() {
       error("Export Failed", "Unable to generate CO-PO spreadsheet.");
     } finally {
       setIsExportingCopo(false);
+    }
+  };
+
+  const handleDownloadNBAAudit = async () => {
+    setIsExportingNBA(true);
+    try {
+      await api.download(
+        "/reports/nba-audit-export/",
+        "nba_accreditation_audit_report.xlsx"
+      );
+      success("NBA Audit Ready", "Comprehensive multi-module NBA report downloaded successfully.");
+    } catch {
+      error("Export Failed", "Unable to generate NBA accreditation report.");
+    } finally {
+      setIsExportingNBA(false);
     }
   };
 
@@ -398,6 +414,51 @@ export default function ReportsExportPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Card 5: NBA Multi-Module Accreditation Audit Report XLSX */}
+          {!isStudent && (
+            <Card className="hover:border-indigo-200 transition-all shadow-sm md:col-span-2 bg-gradient-to-r from-white via-indigo-50/20 to-white">
+              <div className="p-5 pb-3 border-b border-slate-100 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="p-2 rounded-lg bg-indigo-50 text-indigo-700">
+                    <ShieldCheck className="w-5 h-5" />
+                  </span>
+                  <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-indigo-100 font-bold text-indigo-800 border border-indigo-200">
+                    5-SHEET SAR WORKBOOK
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 leading-snug">
+                    NBA Multi-Module Accreditation Audit Report (SAR)
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                    Synthesizes cross-module compliance from all department operations: Criteria 1–5 compliance scores, student-faculty ratios, syllabus pace, CO-PO articulation matrices across all courses, and capstone project originality & evidence links.
+                  </p>
+                </div>
+              </div>
+              <CardContent className="pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="space-y-1 text-xs text-slate-600">
+                  <div className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <span>Includes: Criteria C1..C5 Matrix · Cross-Module KPIs · Course CO-PO Summary · Capstones</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <span>Format: Multi-sheet authenticated XLSX for Visiting NBA Peer Team inspection</span>
+                  </div>
+                </div>
+                <div className="sm:shrink-0">
+                  <Button
+                    onClick={handleDownloadNBAAudit}
+                    isLoading={isExportingNBA}
+                    className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+                  >
+                    <Download className="w-4 h-4" /> Download NBA SAR Report (XLSX)
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
   );

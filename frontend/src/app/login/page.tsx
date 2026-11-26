@@ -2,153 +2,392 @@
 
 import * as React from "react";
 import { useAuth } from "@/lib/auth";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { useToast } from "@/components/ui/Toast";
+import { Role } from "@/types";
+import {
+  GraduationCap,
+  BookOpen,
+  UserCheck,
+  ShieldCheck,
+  Building2,
+  ChevronDown,
+  Check,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  ArrowRight,
+} from "lucide-react";
+
+interface RoleOption {
+  id: Role;
+  label: string;
+  shortLabel: string;
+  icon: React.ComponentType<{ className?: string }>;
+  email: string;
+  placeholder: string;
+  inputLabel: string;
+  buttonText: string;
+  badge: string;
+}
+
+const ROLES: RoleOption[] = [
+  {
+    id: "STUDENT",
+    label: "Student Portal",
+    shortLabel: "Student",
+    icon: GraduationCap,
+    email: "student01@demo.local",
+    placeholder: "26MCA121 or student01@demo.local",
+    inputLabel: "Roll Number or Email",
+    buttonText: "Sign In as Student",
+    badge: "Default",
+  },
+  {
+    id: "FACULTY",
+    label: "Faculty Guide Portal",
+    shortLabel: "Faculty",
+    icon: BookOpen,
+    email: "amol_patil@tkietwarana.ac.in",
+    placeholder: "amol_patil@tkietwarana.ac.in",
+    inputLabel: "Faculty Email Address",
+    buttonText: "Sign In as Faculty",
+    badge: "Faculty",
+  },
+  {
+    id: "COORDINATOR",
+    label: "Class Coordinator Portal",
+    shortLabel: "Coordinator",
+    icon: UserCheck,
+    email: "asphalle@tkietwarana.ac.in",
+    placeholder: "asphalle@tkietwarana.ac.in",
+    inputLabel: "Coordinator Email Address",
+    buttonText: "Sign In as Coordinator",
+    badge: "Coordinator",
+  },
+  {
+    id: "HOD",
+    label: "Head of Department (HOD)",
+    shortLabel: "HOD",
+    icon: ShieldCheck,
+    email: "hodcse@tkietwarana.ac.in",
+    placeholder: "hodcse@tkietwarana.ac.in",
+    inputLabel: "HOD Official Email",
+    buttonText: "Sign In as HOD",
+    badge: "Admin",
+  },
+  {
+    id: "PRINCIPAL",
+    label: "Principal / Executive",
+    shortLabel: "Principal",
+    icon: Building2,
+    email: "principal@demo.local",
+    placeholder: "principal@demo.local",
+    inputLabel: "Principal Email Address",
+    buttonText: "Sign In as Principal",
+    badge: "Executive",
+  },
+];
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const { error: toastError } = useToast();
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const { error: toastError, success: toastSuccess } = useToast();
+
+  // First view defaults to Student
+  const [selectedRoleId, setSelectedRoleId] = React.useState<Role>("STUDENT");
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [identifier, setIdentifier] = React.useState("student01@demo.local");
+  const [password, setPassword] = React.useState("Demo@12345");
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [rememberMe, setRememberMe] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [fieldError, setFieldError] = React.useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  const currentRole = ROLES.find((r) => r.id === selectedRoleId) || ROLES[0];
+  const CurrentIcon = currentRole.icon;
+
+  // Click outside to close dropdown
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleRoleChange = (role: RoleOption) => {
+    setSelectedRoleId(role.id);
+    setIsDropdownOpen(false);
+    setErrorMessage(null);
+    setIdentifier(role.email);
+    setPassword("Demo@12345");
+  };
+
+  const handleQuickDemoClick = (role: RoleOption) => {
+    handleRoleChange(role);
+    toastSuccess("Demo Loaded", `Loaded credentials for ${role.shortLabel}`);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFieldError(null);
+    setErrorMessage(null);
 
-    if (!email) {
-      setFieldError("Please enter your email.");
+    const cleanInput = identifier.trim();
+    if (!cleanInput) {
+      setErrorMessage(`Please enter your ${currentRole.inputLabel.toLowerCase()}.`);
       return;
     }
     if (!password) {
-      setFieldError("Please enter your password.");
+      setErrorMessage("Please enter your password.");
       return;
     }
 
     try {
       setIsLoading(true);
-      await login(email, password);
+      await login(cleanInput, password);
     } catch (err: unknown) {
       const apiErr = err as { detail?: string; code?: string };
-      const msg = apiErr?.detail || "Invalid email or password. Please try again.";
-      setFieldError(msg);
-      toastError("Login failed", msg);
+      const msg = apiErr?.detail || "Invalid login credentials. Please check your username and password.";
+      setErrorMessage(msg);
+      toastError("Login Failed", msg);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const fillDemo = (demoEmail: string) => {
-    setEmail(demoEmail);
-    setPassword("Demo@12345");
-    setFieldError(null);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-indigo-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-tr from-indigo-500 via-violet-500 to-pink-500 flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-indigo-500/30 mb-3 border border-white/20">
-          A
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-between py-8 px-4 sm:px-6 font-sans antialiased text-slate-800">
+      {/* Top Subtle Brand Bar */}
+      <div className="w-full max-w-md mx-auto text-center pt-2 sm:pt-6">
+        {/* Logo */}
+        <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 mb-3 font-black text-2xl">
+          E
         </div>
-        <div className="flex items-center justify-center gap-2">
-          <h2 className="text-3xl font-black tracking-widest text-white">
-            AKIRA
-          </h2>
-          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/30 text-indigo-300 border border-indigo-400/30">
-            HUB
-          </span>
-        </div>
-        <p className="mt-1 text-xs text-slate-300 font-medium">
-          Department Digital Hub · Computer Science & Engineering · TKIET
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          EduSync
+        </h1>
+        <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
+          Academic Hub · TKIET Warananagar
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 border border-slate-200 rounded-xl sm:px-10 shadow-sm">
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <Input
-              label="Email Address"
-              type="email"
-              placeholder="user@demo.local"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isLoading}
-              autoComplete="email"
-              autoFocus
-            />
+      {/* Main Login Card */}
+      <div className="w-full max-w-[430px] mx-auto my-6">
+        <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xl shadow-slate-200/60 p-6 sm:p-8">
+          
+          {/* ----------------------------------------------------------- */}
+          {/* ABOVE SECTION: CLEAN PROFESSIONAL ROLE DROPDOWN             */}
+          {/* ----------------------------------------------------------- */}
+          <div className="mb-6 relative" ref={dropdownRef}>
+            <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
+              Select Role / Portal
+            </label>
 
-            <Input
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isLoading}
-              autoComplete="current-password"
-            />
+            {/* Dropdown Trigger */}
+            <button
+              type="button"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-xl text-left transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 group"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="h-8 w-8 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                  <CurrentIcon className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <span className="block text-sm font-semibold text-slate-900 truncate">
+                    {currentRole.label}
+                  </span>
+                  <span className="block text-[11px] text-slate-500 truncate">
+                    Role: {currentRole.shortLabel}
+                  </span>
+                </div>
+              </div>
+              <ChevronDown
+                className={`h-4 w-4 text-slate-400 group-hover:text-slate-600 transition-transform duration-200 flex-shrink-0 ml-2 ${
+                  isDropdownOpen ? "rotate-180 text-indigo-600" : ""
+                }`}
+              />
+            </button>
 
-            {fieldError && (
-              <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700">
-                {fieldError}
+            {/* Dropdown Menu */}
+            {isDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 mt-2 z-30 bg-white border border-slate-200 rounded-xl shadow-xl shadow-slate-900/10 py-1.5 animate-in fade-in zoom-in-95 duration-150">
+                {ROLES.map((role) => {
+                  const ItemIcon = role.icon;
+                  const isSelected = selectedRoleId === role.id;
+
+                  return (
+                    <button
+                      key={role.id}
+                      type="button"
+                      onClick={() => handleRoleChange(role)}
+                      className={`w-full flex items-center justify-between px-3 py-2 text-left text-xs transition-colors ${
+                        isSelected
+                          ? "bg-indigo-50 text-indigo-700 font-semibold"
+                          : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div
+                          className={`h-7 w-7 rounded-md flex items-center justify-center flex-shrink-0 ${
+                            isSelected
+                              ? "bg-indigo-600 text-white"
+                              : "bg-slate-100 text-slate-600"
+                          }`}
+                        >
+                          <ItemIcon className="h-3.5 w-3.5" />
+                        </div>
+                        <span className="truncate">{role.label}</span>
+                      </div>
+                      {isSelected && <Check className="h-4 w-4 text-indigo-600 flex-shrink-0 ml-2" />}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Username / Roll Number / Email */}
+            <div>
+              <label
+                htmlFor="login-identifier"
+                className="block text-xs font-semibold text-slate-700 mb-1.5"
+              >
+                {currentRole.inputLabel}
+              </label>
+              <div className="relative rounded-xl shadow-sm">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                  <Mail className="h-4 w-4" />
+                </div>
+                <input
+                  id="login-identifier"
+                  type="text"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  disabled={isLoading}
+                  placeholder={currentRole.placeholder}
+                  autoComplete="username"
+                  required
+                  className="block w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:bg-slate-50 disabled:text-slate-400 transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label
+                  htmlFor="login-password"
+                  className="block text-xs font-semibold text-slate-700"
+                >
+                  Password
+                </label>
+                <span className="text-[11px] text-slate-400">Demo: Demo@12345</span>
+              </div>
+              <div className="relative rounded-xl shadow-sm">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                  <Lock className="h-4 w-4" />
+                </div>
+                <input
+                  id="login-password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  placeholder="••••••••••••"
+                  autoComplete="current-password"
+                  required
+                  className="block w-full rounded-xl border border-slate-200 bg-white pl-10 pr-10 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:bg-slate-50 disabled:text-slate-400 transition-colors font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Remember Me */}
+            <div className="flex items-center justify-between pt-0.5 text-xs text-slate-600">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-3.5 w-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span>Remember me</span>
+              </label>
+              <span className="text-[11px] text-slate-400">Secure TLS</span>
+            </div>
+
+            {/* Error Message */}
+            {errorMessage && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 leading-snug">
+                {errorMessage}
               </div>
             )}
 
-            <Button type="submit" className="w-full mt-2" isLoading={isLoading}>
-              Sign in to Portal
-            </Button>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full mt-2 py-2.5 px-4 rounded-xl font-semibold text-sm text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
+            >
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <span>Signing In...</span>
+                </>
+              ) : (
+                <>
+                  <span>{currentRole.buttonText}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </button>
           </form>
 
-          {/* Quick Demo Logins for Evaluator */}
-          <div className="mt-6 pt-6 border-t border-slate-100">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-2 text-center">
-              Quick Demo Logins (Password: Demo@12345)
+          {/* Quick Demo Switcher Pills */}
+          <div className="mt-6 pt-5 border-t border-slate-100">
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2.5 text-center">
+              Quick Demo Fill
             </p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => fillDemo("hodcse@tkietwarana.ac.in")}
-                className="p-2 border border-slate-200 rounded-lg text-left hover:bg-slate-50 text-slate-700 transition-colors"
-              >
-                <div className="font-semibold text-slate-900 truncate">HOD (Dr. R. B. Patil)</div>
-                <div className="text-[10px] text-slate-500 truncate">hodcse@tkietwarana.ac.in</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemo("principal@demo.local")}
-                className="p-2 border border-slate-200 rounded-lg text-left hover:bg-slate-50 text-slate-700 transition-colors"
-              >
-                <div className="font-semibold text-slate-900">Principal</div>
-                <div className="text-[10px] text-slate-500 truncate">principal@demo.local</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemo("amol_patil@tkietwarana.ac.in")}
-                className="p-2 border border-slate-200 rounded-lg text-left hover:bg-slate-50 text-slate-700 transition-colors"
-              >
-                <div className="font-semibold text-slate-900 truncate">Faculty (Prof. A. G. Patil)</div>
-                <div className="text-[10px] text-slate-500 truncate">amol_patil@tkietwarana.ac.in</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemo("asphalle@tkietwarana.ac.in")}
-                className="p-2 border border-slate-200 rounded-lg text-left hover:bg-slate-50 text-slate-700 transition-colors"
-              >
-                <div className="font-semibold text-slate-900 truncate">Coordinator (Prof. A. S. Phalle)</div>
-                <div className="text-[10px] text-slate-500 truncate">asphalle@tkietwarana.ac.in</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemo("student01@demo.local")}
-                className="col-span-2 p-2 border border-slate-200 rounded-lg text-left hover:bg-slate-50 text-slate-700 transition-colors"
-              >
-                <div className="font-semibold text-slate-900 truncate">Student 01 (Vivek Desai - 26MCA121)</div>
-                <div className="text-[10px] text-slate-500">student01@demo.local</div>
-              </button>
+            <div className="flex flex-wrap gap-1.5 justify-center">
+              {ROLES.map((role) => (
+                <button
+                  key={role.id}
+                  type="button"
+                  onClick={() => handleQuickDemoClick(role)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${
+                    selectedRoleId === role.id
+                      ? "bg-indigo-50 border-indigo-200 text-indigo-700 font-semibold"
+                      : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  {role.shortLabel}
+                </button>
+              ))}
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="text-center text-xs text-slate-400 pb-2">
+        <span>CSE Department · Autonomous Institute · TKIET</span>
       </div>
     </div>
   );

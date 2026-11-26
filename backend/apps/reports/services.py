@@ -998,3 +998,282 @@ def get_executive_dashboard_kpis(department_id: int = None) -> dict:
             "not_started": nba_not_started,
         },
     }
+
+
+# ---------------------------------------------------------------------------
+# 6. Comprehensive NBA Multi-Module Accreditation Audit Excel Generator
+# ---------------------------------------------------------------------------
+def generate_nba_audit_excel(department_id: int = None) -> bytes:
+    """
+    Generates an official multi-sheet NBA Self-Assessment Report (SAR) Excel workbook
+    synthesizing cross-module evidence across all academic operations:
+    - Sheet 1: NBA Criteria 1-5 Status & Scored Compliance
+    - Sheet 2: Cross-Module Institutional Performance Indicators
+    - Sheet 3: Criterion 3 CO-PO Attainment Articulation Summary
+    - Sheet 4: Criterion 4 & 5 Capstone Projects with Similarity Scores & Mentors
+    - Sheet 5: Department Accreditation Evidence Repository
+    """
+    wb = openpyxl.Workbook()
+    header_fill = PatternFill(start_color="1E3A8A", end_color="1E3A8A", fill_type="solid")
+    header_font = Font(name="Calibri", size=10, bold=True, color="FFFFFF")
+    bold_font = Font(name="Calibri", size=10, bold=True)
+    thin_border = Border(
+        left=Side(style="thin", color="CBD5E1"),
+        right=Side(style="thin", color="CBD5E1"),
+        top=Side(style="thin", color="CBD5E1"),
+        bottom=Side(style="thin", color="CBD5E1"),
+    )
+
+    dept = None
+    if department_id:
+        dept = Department.objects.filter(id=department_id).first()
+    if not dept:
+        dept = Department.objects.first()
+
+    kpis = get_executive_dashboard_kpis(dept.id if dept else None)
+    criteria_qs = AccreditationCriteria.objects.filter(department=dept).prefetch_related("evidences") if dept else AccreditationCriteria.objects.all().prefetch_related("evidences")
+
+    # Sheet 1: Criteria Compliance
+    ws1 = wb.active
+    ws1.title = "Criteria Compliance"
+    ws1.views.sheetView[0].showGridLines = True
+
+    _style_excel_header(
+        ws1, 6, "NBA Self-Assessment Report (SAR) — Criteria Compliance",
+        f"Department: {dept.name if dept else 'Computer Science & Engineering'} ({dept.code if dept else 'CSE'})",
+        f"Accreditation Body: NBA | Overall Compliance: {kpis.get('nba_compliance_rate', 0)}%"
+    )
+
+    headers1 = ["Criterion Code", "Criterion Title", "Status", "Max Marks", "Obtained Marks", "Evidence Links Count"]
+    start_row = 6
+    for idx, h in enumerate(headers1, 1):
+        c = ws1.cell(row=start_row, column=idx, value=h)
+        c.fill = header_fill
+        c.font = header_font
+        c.alignment = Alignment(horizontal="center", vertical="center")
+        c.border = thin_border
+    ws1.row_dimensions[start_row].height = 24
+
+    tot_max = 0
+    tot_obtained = 0
+    for r_idx, cr in enumerate(criteria_qs.order_by("code"), start_row + 1):
+        ws1.cell(row=r_idx, column=1, value=cr.code).alignment = Alignment(horizontal="center")
+        ws1.cell(row=r_idx, column=2, value=cr.title)
+        
+        st_cell = ws1.cell(row=r_idx, column=3, value=cr.status)
+        st_cell.alignment = Alignment(horizontal="center")
+        st_cell.font = bold_font
+
+        ws1.cell(row=r_idx, column=4, value=cr.max_marks).alignment = Alignment(horizontal="center")
+        ws1.cell(row=r_idx, column=5, value=cr.obtained_marks).alignment = Alignment(horizontal="center")
+        ws1.cell(row=r_idx, column=6, value=cr.evidences.count()).alignment = Alignment(horizontal="center")
+
+        tot_max += cr.max_marks
+        tot_obtained += cr.obtained_marks
+
+        for col_idx in range(1, 7):
+            ws1.cell(row=r_idx, column=col_idx).border = thin_border
+
+    summary_r = start_row + criteria_qs.count() + 1
+    ws1.cell(row=summary_r, column=1, value="TOTAL").font = bold_font
+    ws1.cell(row=summary_r, column=1).alignment = Alignment(horizontal="center")
+    ws1.cell(row=summary_r, column=4, value=tot_max).font = bold_font
+    ws1.cell(row=summary_r, column=4).alignment = Alignment(horizontal="center")
+    ws1.cell(row=summary_r, column=5, value=tot_obtained).font = bold_font
+    ws1.cell(row=summary_r, column=5).alignment = Alignment(horizontal="center")
+    for col_idx in range(1, 7):
+        ws1.cell(row=summary_r, column=col_idx).border = thin_border
+
+    ws1.column_dimensions["A"].width = 16
+    ws1.column_dimensions["B"].width = 44
+    ws1.column_dimensions["C"].width = 18
+    ws1.column_dimensions["D"].width = 14
+    ws1.column_dimensions["E"].width = 16
+    ws1.column_dimensions["F"].width = 20
+
+    # Sheet 2: Cross-Module Institutional Indicators
+    ws2 = wb.create_sheet(title="Institutional Indicators")
+    ws2.views.sheetView[0].showGridLines = True
+
+    _style_excel_header(
+        ws2, 3, "Cross-Module Quality & Operations Indicators",
+        f"TKIET Warananagar · Department of {dept.name if dept else 'CSE'}",
+        "Synthesized from Academics, Insights, Capstones & Accreditation Modules"
+    )
+
+    kpi_rows = [
+        ("Total Active Students Enrolled (M1)", kpis.get("total_students", 0), "Students across SE, TE, and BE batches"),
+        ("Total Faculty Teaching Members (M1)", kpis.get("total_faculty", 0), "Full-time teaching faculty with doctoral/masters credentials"),
+        ("Student-to-Faculty Ratio (SFR - Criterion 5)", f"{round(kpis.get('total_students', 0) / max(1, kpis.get('total_faculty', 0)), 1)}:1", "Benchmark: <= 15:1 for NBA tier accreditation"),
+        ("Department Average Attendance (Criterion 2 & 4)", f"{kpis.get('avg_attendance', 0)}%", "Calculated across all published attendance sessions"),
+        ("High-Risk Students Identified (Criterion 4)", kpis.get("high_risk_students_count", 0), "Early-warning threshold (<75% attendance / mark drop >=15%)"),
+        ("Medium & Low Risk Students", kpis.get("medium_risk_students_count", 0) + kpis.get("low_risk_students_count", 0), "Tracked through continuous internal evaluations"),
+        ("Syllabus Topic Coverage Rate (Criterion 2)", f"{kpis.get('syllabus_completion_rate', 0)}%", f"{kpis.get('covered_topics_count', 0)} of {kpis.get('total_topics_count', 0)} topics completed with teaching logs"),
+        ("Pending Digital Logbook Reviews (Criterion 2)", kpis.get("pending_logbook_reviews", 0), "Daily entries logged by faculty awaiting HOD supervisory sign-off"),
+        ("Active Capstone Projects (Criterion 4 & 5)", kpis.get("active_projects", 0), "Industry-relevant B.Tech final-year project teams"),
+        ("Capstone Milestone Completion Rate", f"{kpis.get('project_milestone_completion_rate', 0)}%", "5-stage formal guide review and sign-off completion"),
+        ("NBA Criteria Compliance Rate (Criterion 1..5)", f"{kpis.get('nba_compliance_rate', 0)}%", f"{kpis.get('nba_summary', {}).get('compliant', 0)} compliant of {kpis.get('nba_summary', {}).get('total_criteria', 0)} total criteria"),
+    ]
+
+    ws2.cell(row=start_row, column=1, value="Indicator Name").fill = header_fill
+    ws2.cell(row=start_row, column=1).font = header_font
+    ws2.cell(row=start_row, column=1).alignment = Alignment(horizontal="center")
+    ws2.cell(row=start_row, column=1).border = thin_border
+
+    ws2.cell(row=start_row, column=2, value="Metric Value").fill = header_fill
+    ws2.cell(row=start_row, column=2).font = header_font
+    ws2.cell(row=start_row, column=2).alignment = Alignment(horizontal="center")
+    ws2.cell(row=start_row, column=2).border = thin_border
+
+    ws2.cell(row=start_row, column=3, value="Benchmarking & Remarks").fill = header_fill
+    ws2.cell(row=start_row, column=3).font = header_font
+    ws2.cell(row=start_row, column=3).alignment = Alignment(horizontal="center")
+    ws2.cell(row=start_row, column=3).border = thin_border
+
+    for idx, (name, val, remarks) in enumerate(kpi_rows, start_row + 1):
+        ws2.cell(row=idx, column=1, value=name).font = bold_font
+        ws2.cell(row=idx, column=2, value=str(val)).alignment = Alignment(horizontal="center")
+        ws2.cell(row=idx, column=3, value=remarks)
+        for col_idx in range(1, 4):
+            ws2.cell(row=idx, column=col_idx).border = thin_border
+
+    ws2.column_dimensions["A"].width = 46
+    ws2.column_dimensions["B"].width = 18
+    ws2.column_dimensions["C"].width = 50
+
+    # Sheet 3: Criterion 3 CO-PO Summary across subjects
+    ws3 = wb.create_sheet(title="CO-PO Summary")
+    ws3.views.sheetView[0].showGridLines = True
+
+    pos = list(ProgramOutcome.objects.filter(department=dept).order_by("code")) if dept else list(ProgramOutcome.objects.all().order_by("code"))
+    po_codes = [p.code for p in pos]
+
+    _style_excel_header(
+        ws3, len(po_codes) + 3, "Criterion 3: Program Outcome (PO) Attainment Articulation Matrix",
+        f"Department of {dept.name if dept else 'Computer Science & Engineering'}",
+        "Direct assessment scores weighted by CO-PO mapping matrix (Scale 0..3)"
+    )
+
+    headers3 = ["Course Code", "Course Name", "Class Group"] + po_codes
+    for idx, h in enumerate(headers3, 1):
+        c = ws3.cell(row=start_row, column=idx, value=h)
+        c.fill = header_fill
+        c.font = header_font
+        c.alignment = Alignment(horizontal="center", vertical="center")
+        c.border = thin_border
+
+    subjects = Subject.objects.select_related("class_group").all()
+    if dept:
+        subjects = subjects.filter(class_group__department=dept)
+
+    for r_idx, sub in enumerate(subjects, start_row + 1):
+        ws3.cell(row=r_idx, column=1, value=sub.code).alignment = Alignment(horizontal="center")
+        ws3.cell(row=r_idx, column=2, value=sub.name)
+        ws3.cell(row=r_idx, column=3, value=sub.class_group.name if sub.class_group else "-").alignment = Alignment(horizontal="center")
+
+        try:
+            po_data = compute_po_attainment(sub)
+            po_map = {item["po_code"]: item.get("attainment", 0.0) for item in po_data.get("po_results", [])}
+        except Exception:
+            po_map = {}
+
+        for p_idx, p_code in enumerate(po_codes, 4):
+            val = po_map.get(p_code, 0.0)
+            c = ws3.cell(row=r_idx, column=p_idx, value=val if val > 0 else "-")
+            c.alignment = Alignment(horizontal="center")
+            if val > 0:
+                c.font = bold_font
+
+        for col_idx in range(1, len(po_codes) + 4):
+            ws3.cell(row=r_idx, column=col_idx).border = thin_border
+
+    ws3.column_dimensions["A"].width = 14
+    ws3.column_dimensions["B"].width = 32
+    ws3.column_dimensions["C"].width = 16
+    for p_idx in range(4, len(po_codes) + 4):
+        ws3.column_dimensions[get_column_letter(p_idx)].width = 10
+
+    # Sheet 4: Capstone Projects
+    ws4 = wb.create_sheet(title="Capstone Projects")
+    ws4.views.sheetView[0].showGridLines = True
+
+    _style_excel_header(
+        ws4, 6, "Criterion 4 & 5: Capstone Projects Repository & NLP Similarity",
+        "Evaluation of Student Projects, Faculty Mentorship & Originality",
+        f"Batch AY 2026-27 | Total Projects: {Project.objects.count()}"
+    )
+
+    headers4 = ["Project Title", "Domain", "Faculty Guide", "NLP Similarity Score", "Milestones Status", "Current Status"]
+    for idx, h in enumerate(headers4, 1):
+        c = ws4.cell(row=start_row, column=idx, value=h)
+        c.fill = header_fill
+        c.font = header_font
+        c.alignment = Alignment(horizontal="center", vertical="center")
+        c.border = thin_border
+
+    for r_idx, proj in enumerate(Project.objects.select_related("guide").prefetch_related("milestones").all(), start_row + 1):
+        ws4.cell(row=r_idx, column=1, value=proj.title)
+        ws4.cell(row=r_idx, column=2, value=proj.domain or "-").alignment = Alignment(horizontal="center")
+        ws4.cell(row=r_idx, column=3, value=proj.guide.full_name if proj.guide else "-")
+        
+        check = proj.similarity_checks.first()
+        sim_val = f"{check.similarity_score:.1f}%" if check else "Unique (Original)"
+        c_sim = ws4.cell(row=r_idx, column=4, value=sim_val)
+        c_sim.alignment = Alignment(horizontal="center")
+        c_sim.font = bold_font
+
+        total_m = proj.milestones.count()
+        comp_m = proj.milestones.filter(is_completed=True).count()
+        ws4.cell(row=r_idx, column=5, value=f"{comp_m}/{total_m} completed").alignment = Alignment(horizontal="center")
+
+        ws4.cell(row=r_idx, column=6, value=proj.status).alignment = Alignment(horizontal="center")
+
+        for col_idx in range(1, 7):
+            ws4.cell(row=r_idx, column=col_idx).border = thin_border
+
+    ws4.column_dimensions["A"].width = 38
+    ws4.column_dimensions["B"].width = 18
+    ws4.column_dimensions["C"].width = 24
+    ws4.column_dimensions["D"].width = 22
+    ws4.column_dimensions["E"].width = 20
+    ws4.column_dimensions["F"].width = 16
+
+    # Sheet 5: Evidence Repository
+    ws5 = wb.create_sheet(title="Evidence Repository")
+    ws5.views.sheetView[0].showGridLines = True
+
+    _style_excel_header(
+        ws5, 5, "NBA Accreditation Audit Evidence Repository",
+        "Linked Documents, Deliverables, Course Files & Official Records",
+        "Evidence Verification for Visiting NBA Peer Team"
+    )
+
+    headers5 = ["Criterion Code", "Evidence Title", "Description", "Linked Asset / Type", "Added By"]
+    for idx, h in enumerate(headers5, 1):
+        c = ws5.cell(row=start_row, column=idx, value=h)
+        c.fill = header_fill
+        c.font = header_font
+        c.alignment = Alignment(horizontal="center", vertical="center")
+        c.border = thin_border
+
+    for r_idx, ev in enumerate(EvidenceLink.objects.select_related("criteria", "document", "project", "added_by").all(), start_row + 1):
+        ws5.cell(row=r_idx, column=1, value=ev.criteria.code if ev.criteria else "-").alignment = Alignment(horizontal="center")
+        ws5.cell(row=r_idx, column=2, value=ev.title).font = bold_font
+        ws5.cell(row=r_idx, column=3, value=ev.description or "-")
+        
+        asset_txt = "External Link" if ev.external_url else ("Document: " + ev.document.title if ev.document else ("Project: " + ev.project.title if ev.project else "Record"))
+        ws5.cell(row=r_idx, column=4, value=asset_txt)
+        ws5.cell(row=r_idx, column=5, value=ev.added_by.full_name if ev.added_by else "System").alignment = Alignment(horizontal="center")
+
+        for col_idx in range(1, 6):
+            ws5.cell(row=r_idx, column=col_idx).border = thin_border
+
+    ws5.column_dimensions["A"].width = 16
+    ws5.column_dimensions["B"].width = 30
+    ws5.column_dimensions["C"].width = 44
+    ws5.column_dimensions["D"].width = 32
+    ws5.column_dimensions["E"].width = 20
+
+    buffer = io.BytesIO()
+    wb.save(buffer)
+    return buffer.getvalue()
