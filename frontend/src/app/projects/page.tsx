@@ -101,7 +101,7 @@ export default function ProjectRepositoryPage() {
   // Debounced live similarity check
   useEffect(() => {
     if (!isSubmitModalOpen) return;
-    if (formTitle.trim().length < 4 && formAbstract.trim().length < 15) {
+    if (formTitle.trim().length < 4 || formAbstract.trim().length < 15) {
       setSimilarityData(null);
       return;
     }
@@ -311,8 +311,8 @@ export default function ProjectRepositoryPage() {
       batch_year: Number(formBatch),
       academic_year: "2026-27",
       member_ids: formMembers,
-      github_url: formGithub.trim(),
-      live_url: formLive.trim(),
+      github_url: formGithub.trim() ? (/^https?:\/\//i.test(formGithub.trim()) ? formGithub.trim() : "https://" + formGithub.trim()) : "",
+      live_url: formLive.trim() ? (/^https?:\/\//i.test(formLive.trim()) ? formLive.trim() : "https://" + formLive.trim()) : "",
     });
   };
 

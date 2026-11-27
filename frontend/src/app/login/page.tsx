@@ -150,8 +150,16 @@ export default function LoginPage() {
       setIsLoading(true);
       await login(cleanInput, password);
     } catch (err: unknown) {
-      const apiErr = err as { detail?: string; code?: string };
-      const msg = apiErr?.detail || "Invalid login credentials. Please check your username and password.";
+      const apiErr = err as { detail?: string; code?: string; message?: string };
+      let msg = apiErr?.detail;
+      if (!msg) {
+        const errObj = err as { message?: string; name?: string };
+        if (err instanceof TypeError || errObj?.message?.includes("fetch") || errObj?.name === "TypeError") {
+          msg = "Backend server unreachable. Please make sure the Django backend is running at http://localhost:8000.";
+        } else {
+          msg = "Invalid login credentials. Please check your username and password.";
+        }
+      }
       setErrorMessage(msg);
       toastError("Login Failed", msg);
     } finally {
@@ -160,30 +168,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-between py-8 px-4 sm:px-6 font-sans antialiased text-slate-800">
+    <div className="min-h-screen flex flex-col justify-between py-8 px-4 sm:px-6 font-sans antialiased text-slate-800">
       {/* Top Subtle Brand Bar */}
       <div className="w-full max-w-md mx-auto text-center pt-2 sm:pt-6">
-        {/* Logo */}
-        <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 mb-3 font-black text-2xl">
+        {/* Luminous Gradient Logo */}
+        <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-gradient-to-tr from-cyan-500 via-sky-500 to-indigo-600 text-white shadow-xl shadow-cyan-500/25 mb-3 font-black text-2xl border border-white/50">
           E
         </div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
           EduSync
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
+        <p className="text-xs sm:text-sm text-slate-600 mt-1 font-semibold">
           Academic Hub · TKIET Warananagar
         </p>
       </div>
 
-      {/* Main Login Card */}
+      {/* Main Frosted Glass Login Card */}
       <div className="w-full max-w-[430px] mx-auto my-6">
-        <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xl shadow-slate-200/60 p-6 sm:p-8">
+        <div className="rounded-3xl border border-white/85 bg-white/70 backdrop-blur-2xl shadow-[0_16px_40px_rgb(0,0,0,0.06)] p-6 sm:p-8">
           
           {/* ----------------------------------------------------------- */}
-          {/* ABOVE SECTION: CLEAN PROFESSIONAL ROLE DROPDOWN             */}
+          {/* ROLE DROPDOWN (Frosted Style)                               */}
           {/* ----------------------------------------------------------- */}
           <div className="mb-6 relative" ref={dropdownRef}>
-            <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
+            <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
               Select Role / Portal
             </label>
 
@@ -191,31 +199,31 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-xl text-left transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 group"
+              className="w-full flex items-center justify-between px-3.5 py-2.5 bg-white/65 hover:bg-white/90 border border-white/85 rounded-2xl text-left transition-all shadow-2xs focus:outline-none focus:ring-2 focus:ring-cyan-400/30 group"
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="h-8 w-8 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-cyan-50 to-indigo-50 border border-cyan-100 text-cyan-700 flex items-center justify-center flex-shrink-0 shadow-2xs">
                   <CurrentIcon className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
-                  <span className="block text-sm font-semibold text-slate-900 truncate">
+                  <span className="block text-sm font-bold text-slate-900 truncate">
                     {currentRole.label}
                   </span>
-                  <span className="block text-[11px] text-slate-500 truncate">
+                  <span className="block text-[11px] text-slate-500 font-medium truncate">
                     Role: {currentRole.shortLabel}
                   </span>
                 </div>
               </div>
               <ChevronDown
                 className={`h-4 w-4 text-slate-400 group-hover:text-slate-600 transition-transform duration-200 flex-shrink-0 ml-2 ${
-                  isDropdownOpen ? "rotate-180 text-indigo-600" : ""
+                  isDropdownOpen ? "rotate-180 text-cyan-600" : ""
                 }`}
               />
             </button>
 
             {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 z-30 bg-white border border-slate-200 rounded-xl shadow-xl shadow-slate-900/10 py-1.5 animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute top-full left-0 right-0 mt-2 z-30 bg-white/90 backdrop-blur-2xl border border-white/90 rounded-2xl shadow-xl shadow-indigo-500/10 py-1.5 animate-in fade-in zoom-in-95 duration-150">
                 {ROLES.map((role) => {
                   const ItemIcon = role.icon;
                   const isSelected = selectedRoleId === role.id;
@@ -227,23 +235,23 @@ export default function LoginPage() {
                       onClick={() => handleRoleChange(role)}
                       className={`w-full flex items-center justify-between px-3 py-2 text-left text-xs transition-colors ${
                         isSelected
-                          ? "bg-indigo-50 text-indigo-700 font-semibold"
-                          : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                          ? "bg-cyan-50/80 text-cyan-900 font-bold"
+                          : "text-slate-700 hover:bg-white/60 hover:text-slate-900"
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <div
-                          className={`h-7 w-7 rounded-md flex items-center justify-center flex-shrink-0 ${
+                          className={`h-7 w-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
                             isSelected
-                              ? "bg-indigo-600 text-white"
-                              : "bg-slate-100 text-slate-600"
+                              ? "bg-cyan-600 text-white"
+                              : "bg-white/80 border border-white/80 text-slate-600"
                           }`}
                         >
                           <ItemIcon className="h-3.5 w-3.5" />
                         </div>
                         <span className="truncate">{role.label}</span>
                       </div>
-                      {isSelected && <Check className="h-4 w-4 text-indigo-600 flex-shrink-0 ml-2" />}
+                      {isSelected && <Check className="h-4 w-4 text-cyan-600 flex-shrink-0 ml-2" />}
                     </button>
                   );
                 })}
@@ -257,11 +265,11 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="login-identifier"
-                className="block text-xs font-semibold text-slate-700 mb-1.5"
+                className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider"
               >
                 {currentRole.inputLabel}
               </label>
-              <div className="relative rounded-xl shadow-sm">
+              <div className="relative rounded-xl shadow-2xs">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                   <Mail className="h-4 w-4" />
                 </div>
@@ -274,7 +282,7 @@ export default function LoginPage() {
                   placeholder={currentRole.placeholder}
                   autoComplete="username"
                   required
-                  className="block w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:bg-slate-50 disabled:text-slate-400 transition-colors"
+                  className="block w-full rounded-xl border border-white/85 bg-white/65 backdrop-blur-md pl-10 pr-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-cyan-400 focus:bg-white/95 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 disabled:bg-white/30 disabled:text-slate-400 transition-all font-medium"
                 />
               </div>
             </div>
@@ -284,13 +292,13 @@ export default function LoginPage() {
               <div className="flex items-center justify-between mb-1.5">
                 <label
                   htmlFor="login-password"
-                  className="block text-xs font-semibold text-slate-700"
+                  className="block text-xs font-bold text-slate-700 uppercase tracking-wider"
                 >
                   Password
                 </label>
-                <span className="text-[11px] text-slate-400">Demo: Demo@12345</span>
+                <span className="text-[11px] text-slate-500 font-medium">Demo: Demo@12345</span>
               </div>
-              <div className="relative rounded-xl shadow-sm">
+              <div className="relative rounded-xl shadow-2xs">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                   <Lock className="h-4 w-4" />
                 </div>
@@ -303,7 +311,7 @@ export default function LoginPage() {
                   placeholder="••••••••••••"
                   autoComplete="current-password"
                   required
-                  className="block w-full rounded-xl border border-slate-200 bg-white pl-10 pr-10 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:bg-slate-50 disabled:text-slate-400 transition-colors font-mono"
+                  className="block w-full rounded-xl border border-white/85 bg-white/65 backdrop-blur-md pl-10 pr-10 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-cyan-400 focus:bg-white/95 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 disabled:bg-white/30 disabled:text-slate-400 transition-all font-mono"
                 />
                 <button
                   type="button"
@@ -317,31 +325,31 @@ export default function LoginPage() {
             </div>
 
             {/* Remember Me */}
-            <div className="flex items-center justify-between pt-0.5 text-xs text-slate-600">
+            <div className="flex items-center justify-between pt-0.5 text-xs text-slate-600 font-medium">
               <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                  className="h-3.5 w-3.5 rounded border-white/80 text-cyan-600 focus:ring-cyan-400"
                 />
                 <span>Remember me</span>
               </label>
-              <span className="text-[11px] text-slate-400">Secure TLS</span>
+              <span className="text-[11px] text-slate-400 font-medium">Secure TLS</span>
             </div>
 
             {/* Error Message */}
             {errorMessage && (
-              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 leading-snug">
+              <div className="p-3 rounded-xl bg-rose-50/90 border border-rose-200 text-xs text-rose-700 font-semibold leading-snug">
                 {errorMessage}
               </div>
             )}
 
-            {/* Submit Button */}
+            {/* Submit Button (Luminous Gradient) */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-2 py-2.5 px-4 rounded-xl font-semibold text-sm text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
+              className="w-full mt-2 py-3 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-600 hover:from-cyan-600 hover:via-sky-600 hover:to-indigo-700 active:scale-[0.98] shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none border border-white/20"
             >
               {isLoading ? (
                 <>
@@ -361,8 +369,8 @@ export default function LoginPage() {
           </form>
 
           {/* Quick Demo Switcher Pills */}
-          <div className="mt-6 pt-5 border-t border-slate-100">
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2.5 text-center">
+          <div className="mt-6 pt-5 border-t border-white/60">
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 text-center">
               Quick Demo Fill
             </p>
             <div className="flex flex-wrap gap-1.5 justify-center">
@@ -371,10 +379,10 @@ export default function LoginPage() {
                   key={role.id}
                   type="button"
                   onClick={() => handleQuickDemoClick(role)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${
+                  className={`px-3 py-1 rounded-xl text-xs font-bold border transition-all ${
                     selectedRoleId === role.id
-                      ? "bg-indigo-50 border-indigo-200 text-indigo-700 font-semibold"
-                      : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                      ? "bg-white text-cyan-900 border-white shadow-2xs"
+                      : "bg-white/60 border-white/80 text-slate-600 hover:bg-white/90"
                   }`}
                 >
                   {role.shortLabel}
@@ -386,8 +394,8 @@ export default function LoginPage() {
       </div>
 
       {/* Footer */}
-      <div className="text-center text-xs text-slate-400 pb-2">
-        <span>CSE Department · Autonomous Institute · TKIET</span>
+      <div className="text-center text-xs text-slate-500 font-semibold pb-2">
+        <span>CSE Department · Autonomous Institute · TKIET Warananagar</span>
       </div>
     </div>
   );

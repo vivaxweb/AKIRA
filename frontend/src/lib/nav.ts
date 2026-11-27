@@ -7,13 +7,11 @@ import {
   FileSpreadsheet,
   BookOpen,
   ClipboardList,
-  Target,
   BarChart3,
   AlertTriangle,
   FolderGit2,
   Bell,
   FileText,
-  FileCheck2,
   Sparkles,
   Settings,
 } from "lucide-react";
@@ -72,28 +70,6 @@ export const NAV_ITEMS: NavItem[] = [
     roles: ["PRINCIPAL", "HOD", "FACULTY", "COORDINATOR"],
     section: "Academics",
   },
-  // Quality & Accreditation
-  {
-    title: "CO-PO Attainment",
-    href: "/academics/co-po",
-    icon: Target,
-    roles: ["PRINCIPAL", "HOD", "FACULTY", "COORDINATOR"],
-    section: "Quality & NBA",
-  },
-  {
-    title: "Accreditation",
-    href: "/accreditation",
-    icon: FileCheck2,
-    roles: ["PRINCIPAL", "HOD", "FACULTY", "COORDINATOR"],
-    section: "Quality & NBA",
-  },
-  {
-    title: "Reports",
-    href: "/reports",
-    icon: FileSpreadsheet,
-    roles: ["PRINCIPAL", "HOD", "FACULTY", "COORDINATOR", "STUDENT"],
-    section: "Quality & NBA",
-  },
   // Intelligence & Analytics
   {
     title: "Academic Risk",
@@ -145,6 +121,14 @@ export const NAV_ITEMS: NavItem[] = [
     icon: FileText,
     roles: ["PRINCIPAL", "HOD", "FACULTY", "COORDINATOR", "STUDENT"],
     section: "Resources",
+  },
+  // Reports
+  {
+    title: "Reports & Exports",
+    href: "/reports",
+    icon: FileSpreadsheet,
+    roles: ["PRINCIPAL", "HOD", "FACULTY", "COORDINATOR", "STUDENT"],
+    section: "Reports",
   },
   // Administration
   {

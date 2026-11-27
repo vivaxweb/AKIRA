@@ -16,12 +16,8 @@ import {
   FileSpreadsheet,
   Download,
   CalendarCheck,
-  Target,
   GraduationCap,
-  ShieldCheck,
-  ArrowRight,
 } from "lucide-react";
-import Link from "next/link";
 
 interface StudentRiskItem {
   student_id: number;
@@ -39,15 +35,12 @@ export default function ReportsExportPage() {
   // Form selections
   const [attendanceSubjectId, setAttendanceSubjectId] = useState("");
   const [marksSubjectId, setMarksSubjectId] = useState("");
-  const [copoSubjectId, setCopoSubjectId] = useState("");
   const [selectedStudentProfileId, setSelectedStudentProfileId] = useState("");
 
   // Loading states for individual exports
   const [isExportingAtt, setIsExportingAtt] = useState(false);
   const [isExportingMarks, setIsExportingMarks] = useState(false);
-  const [isExportingCopo, setIsExportingCopo] = useState(false);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
-  const [isExportingNBA, setIsExportingNBA] = useState(false);
 
   // Fetch subjects
   const { data: subjectsData } = useQuery<{ results?: Subject[] } | Subject[]>({
@@ -76,9 +69,8 @@ export default function ReportsExportPage() {
     if (subjects.length > 0) {
       if (!attendanceSubjectId) setAttendanceSubjectId(String(subjects[0].id));
       if (!marksSubjectId) setMarksSubjectId(String(subjects[0].id));
-      if (!copoSubjectId) setCopoSubjectId(String(subjects[0].id));
     }
-  }, [subjects, attendanceSubjectId, marksSubjectId, copoSubjectId]);
+  }, [subjects, attendanceSubjectId, marksSubjectId]);
 
   React.useEffect(() => {
     if (students.length > 0 && !selectedStudentProfileId) {
@@ -123,39 +115,6 @@ export default function ReportsExportPage() {
     }
   };
 
-  const handleDownloadCOPO = async () => {
-    if (!copoSubjectId) return;
-    setIsExportingCopo(true);
-    try {
-      const selectedSubj = subjects.find((s) => s.id === parseInt(copoSubjectId, 10));
-      const code = selectedSubj?.code || "subject";
-      await api.download(
-        `/reports/copo-export/?subject_id=${copoSubjectId}`,
-        `copo_attainment_${code}.xlsx`
-      );
-      success("Export Ready", "CO-PO attainment calculation workbook downloaded.");
-    } catch {
-      error("Export Failed", "Unable to generate CO-PO spreadsheet.");
-    } finally {
-      setIsExportingCopo(false);
-    }
-  };
-
-  const handleDownloadNBAAudit = async () => {
-    setIsExportingNBA(true);
-    try {
-      await api.download(
-        "/reports/nba-audit-export/",
-        "nba_accreditation_audit_report.xlsx"
-      );
-      success("NBA Audit Ready", "Comprehensive multi-module NBA report downloaded successfully.");
-    } catch {
-      error("Export Failed", "Unable to generate NBA accreditation report.");
-    } finally {
-      setIsExportingNBA(false);
-    }
-  };
-
   const handleDownloadPDF = async () => {
     setIsExportingPdf(true);
     try {
@@ -180,286 +139,186 @@ export default function ReportsExportPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl">
-      {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+    <div className="space-y-6 max-w-6xl mx-auto py-2">
+      {/* Frosted Header */}
+      <div className="p-5 rounded-2xl bg-white/60 border border-white/80 backdrop-blur-xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="p-2.5 bg-gradient-to-tr from-cyan-500 to-indigo-600 text-white rounded-xl shadow-sm shadow-cyan-500/20">
+            <FileSpreadsheet className="w-5 h-5" />
+          </span>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="p-2 bg-indigo-50 text-indigo-700 rounded-lg">
-                <FileSpreadsheet className="w-6 h-6" />
-              </span>
-              <div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                  Academic Reports & Export Center
-                </h1>
-                <p className="text-sm text-slate-500">
-                  Generate authenticated institutional XLSX spreadsheets and official progress PDFs
-                </p>
-              </div>
-            </div>
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+              Academic Reports & Export Center
+            </h1>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Generate authenticated institutional XLSX spreadsheets and official progress PDFs
+            </p>
           </div>
-
-          <Link href="/accreditation">
-            <Button variant="secondary" className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-indigo-600" />
-              NBA Accreditation Hub <ArrowRight className="w-3.5 h-3.5" />
-            </Button>
-          </Link>
         </div>
+      </div>
 
-        {/* Export Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Card 1: Attendance Matrix XLSX */}
-          {!isStudent && (
-            <Card className="hover:border-indigo-200 transition-all shadow-sm">
-              <div className="p-5 pb-3 border-b border-slate-100 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="p-2 rounded-lg bg-blue-50 text-blue-700">
-                    <CalendarCheck className="w-5 h-5" />
-                  </span>
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 font-semibold text-slate-700">
-                    XLSX SPREADSHEET
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 leading-snug">Course Attendance Register</h3>
-                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                    Full student roster matrix with session dates, total present, and attendance %
-                  </p>
-                </div>
-              </div>
-              <CardContent className="pt-4 space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Select Course / Subject
-                  </label>
-                  <Select
-                    value={attendanceSubjectId}
-                    onChange={(e) => setAttendanceSubjectId(e.target.value)}
-                  >
-                    {subjects.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.code} — {s.name} ({s.class_group_name || "TE-CSE"})
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                <div className="pt-2">
-                  <Button
-                    onClick={handleDownloadAttendance}
-                    isLoading={isExportingAtt}
-                    disabled={!attendanceSubjectId}
-                    className="w-full flex items-center justify-center gap-2"
-                  >
-                    <Download className="w-4 h-4" /> Download Attendance Register (XLSX)
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Card 2: CIE Marks Sheet XLSX */}
-          {!isStudent && (
-            <Card className="hover:border-indigo-200 transition-all shadow-sm">
-              <div className="p-5 pb-3 border-b border-slate-100 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="p-2 rounded-lg bg-emerald-50 text-emerald-700">
-                    <FileSpreadsheet className="w-5 h-5" />
-                  </span>
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 font-semibold text-slate-700">
-                    XLSX SPREADSHEET
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 leading-snug">Internal Assessment Marks Sheet</h3>
-                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                    Tabulated CIE scores with class averages, percentages, and pass/fail classification
-                  </p>
-                </div>
-              </div>
-              <CardContent className="pt-4 space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Select Course / Subject
-                  </label>
-                  <Select
-                    value={marksSubjectId}
-                    onChange={(e) => setMarksSubjectId(e.target.value)}
-                  >
-                    {subjects.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.code} — {s.name} ({s.class_group_name || "TE-CSE"})
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                <div className="pt-2">
-                  <Button
-                    onClick={handleDownloadMarks}
-                    isLoading={isExportingMarks}
-                    disabled={!marksSubjectId}
-                    className="w-full flex items-center justify-center gap-2"
-                  >
-                    <Download className="w-4 h-4" /> Download Marks Sheet (XLSX)
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Card 3: CO-PO Attainment Calculation XLSX */}
-          {!isStudent && (
-            <Card className="hover:border-indigo-200 transition-all shadow-sm">
-              <div className="p-5 pb-3 border-b border-slate-100 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="p-2 rounded-lg bg-indigo-50 text-indigo-700">
-                    <Target className="w-5 h-5" />
-                  </span>
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 font-semibold text-slate-700">
-                    2-SHEET WORKBOOK
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 leading-snug">CO-PO Attainment Calculation</h3>
-                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                    Direct Course Outcome score mapping and full PO1..PO12 weighted correlation matrix
-                  </p>
-                </div>
-              </div>
-              <CardContent className="pt-4 space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Select Course / Subject
-                  </label>
-                  <Select
-                    value={copoSubjectId}
-                    onChange={(e) => setCopoSubjectId(e.target.value)}
-                  >
-                    {subjects.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.code} — {s.name} ({s.class_group_name || "TE-CSE"})
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                <div className="pt-2">
-                  <Button
-                    onClick={handleDownloadCOPO}
-                    isLoading={isExportingCopo}
-                    disabled={!copoSubjectId}
-                    className="w-full flex items-center justify-center gap-2"
-                  >
-                    <Download className="w-4 h-4" /> Download Attainment Workbook (XLSX)
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Card 4: Comprehensive Student Progress Card PDF */}
-          <Card className={`hover:border-indigo-200 transition-all shadow-sm ${isStudent ? "md:col-span-2" : ""}`}>
-            <div className="p-5 pb-3 border-b border-slate-100 space-y-2">
+      {/* Export Cards Grid (Frosted Glassmorphism) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* Card 1: Attendance Matrix XLSX */}
+        {!isStudent && (
+          <Card className="rounded-2xl border border-white/85 bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:bg-white/80 transition-all flex flex-col justify-between">
+            <div className="p-5 pb-3 border-b border-white/60 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="p-2 rounded-lg bg-rose-50 text-rose-700">
-                  <GraduationCap className="w-5 h-5" />
+                <span className="p-2 rounded-xl bg-blue-50/80 text-blue-700 border border-blue-100">
+                  <CalendarCheck className="w-5 h-5" />
                 </span>
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-rose-50 font-semibold text-rose-700 border border-rose-200">
-                  OFFICIAL PDF CARD
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/80 border border-white/90 font-bold text-slate-700">
+                  XLSX MATRIX
                 </span>
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900 leading-snug">
-                  {isStudent ? "My Academic Progress Report Card" : "Student Comprehensive Progress Report"}
-                </h3>
+                <h3 className="text-sm font-bold text-slate-900 leading-snug">Course Attendance Register</h3>
                 <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                  Official institutional report card with attendance, CIE grades, risk status, capstone project, and signatures
+                  Full student roster matrix with session dates, total present, and attendance %
                 </p>
               </div>
             </div>
-            <CardContent className="pt-4 space-y-4">
-              {!isStudent ? (
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Select Student to Generate Report
-                  </label>
-                  <Select
-                    value={selectedStudentProfileId}
-                    onChange={(e) => setSelectedStudentProfileId(e.target.value)}
-                  >
-                    {students.map((st) => (
-                      <option key={st.student_id} value={st.student_id}>
-                        {st.roll_no} — {st.name} ({st.class_group_name})
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-              ) : (
-                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-600">
-                  <p>
-                    <strong>Student Name:</strong> {user?.first_name} {user?.last_name}
-                  </p>
-                  <p className="mt-1">
-                    <strong>Email:</strong> {user?.email}
-                  </p>
-                </div>
-              )}
+            <CardContent className="pt-4 space-y-4 flex-1 flex flex-col justify-between">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Select Course / Subject
+                </label>
+                <Select
+                  value={attendanceSubjectId}
+                  onChange={(e) => setAttendanceSubjectId(e.target.value)}
+                >
+                  {subjects.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.code} — {s.name} ({s.class_group_name || "TE-CSE"})
+                    </option>
+                  ))}
+                </Select>
+              </div>
               <div className="pt-2">
                 <Button
-                  onClick={handleDownloadPDF}
-                  isLoading={isExportingPdf}
-                  className="w-full flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white"
+                  onClick={handleDownloadAttendance}
+                  isLoading={isExportingAtt}
+                  disabled={!attendanceSubjectId}
+                  variant="glass"
+                  className="w-full flex items-center justify-center gap-2 text-xs font-bold py-2.5"
                 >
-                  <Download className="w-4 h-4" /> Download Progress Report (PDF)
+                  <Download className="w-4 h-4 text-cyan-600" /> Download Register (XLSX)
                 </Button>
               </div>
             </CardContent>
           </Card>
+        )}
 
-          {/* Card 5: NBA Multi-Module Accreditation Audit Report XLSX */}
-          {!isStudent && (
-            <Card className="hover:border-indigo-200 transition-all shadow-sm md:col-span-2 bg-gradient-to-r from-white via-indigo-50/20 to-white">
-              <div className="p-5 pb-3 border-b border-slate-100 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="p-2 rounded-lg bg-indigo-50 text-indigo-700">
-                    <ShieldCheck className="w-5 h-5" />
-                  </span>
-                  <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-indigo-100 font-bold text-indigo-800 border border-indigo-200">
-                    5-SHEET SAR WORKBOOK
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 leading-snug">
-                    NBA Multi-Module Accreditation Audit Report (SAR)
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                    Synthesizes cross-module compliance from all department operations: Criteria 1–5 compliance scores, student-faculty ratios, syllabus pace, CO-PO articulation matrices across all courses, and capstone project originality & evidence links.
-                  </p>
-                </div>
+        {/* Card 2: CIE Marks Sheet XLSX */}
+        {!isStudent && (
+          <Card className="rounded-2xl border border-white/85 bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:bg-white/80 transition-all flex flex-col justify-between">
+            <div className="p-5 pb-3 border-b border-white/60 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="p-2 rounded-xl bg-emerald-50/80 text-emerald-700 border border-emerald-100">
+                  <FileSpreadsheet className="w-5 h-5" />
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/80 border border-white/90 font-bold text-slate-700">
+                  XLSX SPREADSHEET
+                </span>
               </div>
-              <CardContent className="pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="space-y-1 text-xs text-slate-600">
-                  <div className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    <span>Includes: Criteria C1..C5 Matrix · Cross-Module KPIs · Course CO-PO Summary · Capstones</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    <span>Format: Multi-sheet authenticated XLSX for Visiting NBA Peer Team inspection</span>
-                  </div>
-                </div>
-                <div className="sm:shrink-0">
-                  <Button
-                    onClick={handleDownloadNBAAudit}
-                    isLoading={isExportingNBA}
-                    className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
-                  >
-                    <Download className="w-4 h-4" /> Download NBA SAR Report (XLSX)
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 leading-snug">Internal Assessment Marks Sheet</h3>
+                <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                  Tabulated CIE scores with class averages, percentages, and pass/fail classification
+                </p>
+              </div>
+            </div>
+            <CardContent className="pt-4 space-y-4 flex-1 flex flex-col justify-between">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Select Course / Subject
+                </label>
+                <Select
+                  value={marksSubjectId}
+                  onChange={(e) => setMarksSubjectId(e.target.value)}
+                >
+                  {subjects.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.code} — {s.name} ({s.class_group_name || "TE-CSE"})
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div className="pt-2">
+                <Button
+                  onClick={handleDownloadMarks}
+                  isLoading={isExportingMarks}
+                  disabled={!marksSubjectId}
+                  variant="glass"
+                  className="w-full flex items-center justify-center gap-2 text-xs font-bold py-2.5"
+                >
+                  <Download className="w-4 h-4 text-emerald-600" /> Download Marks (XLSX)
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Card 3: Comprehensive Student Progress Card PDF */}
+        <Card className={`rounded-2xl border border-white/85 bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:bg-white/80 transition-all flex flex-col justify-between ${isStudent ? "md:col-span-2 lg:col-span-3" : ""}`}>
+          <div className="p-5 pb-3 border-b border-white/60 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="p-2 rounded-xl bg-purple-50/80 text-purple-700 border border-purple-100">
+                <GraduationCap className="w-5 h-5" />
+              </span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-50 font-bold text-purple-700 border border-purple-200">
+                OFFICIAL PDF
+              </span>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 leading-snug">
+                {isStudent ? "My Academic Progress Report Card" : "Student Progress Card"}
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                Official institutional report card with attendance, CIE grades, risk status, capstone project, and signatures
+              </p>
+            </div>
+          </div>
+          <CardContent className="pt-4 space-y-4 flex-1 flex flex-col justify-between">
+            {!isStudent ? (
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Select Student to Generate Report
+                </label>
+                <Select
+                  value={selectedStudentProfileId}
+                  onChange={(e) => setSelectedStudentProfileId(e.target.value)}
+                >
+                  {students.map((st) => (
+                    <option key={st.student_id} value={st.student_id}>
+                      {st.roll_no} — {st.name} ({st.class_group_name})
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            ) : (
+              <div className="p-3 bg-white/60 rounded-xl border border-white/80 text-xs text-slate-600">
+                <p>
+                  <strong>Student Name:</strong> {user?.first_name} {user?.last_name}
+                </p>
+                <p className="mt-1">
+                  <strong>Email:</strong> {user?.email}
+                </p>
+              </div>
+            )}
+            <div className="pt-2">
+              <Button
+                onClick={handleDownloadPDF}
+                isLoading={isExportingPdf}
+                variant="primary"
+                className="w-full flex items-center justify-center gap-2 text-xs font-bold py-2.5"
+              >
+                <Download className="w-4 h-4" /> Download Progress Report (PDF)
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+    </div>
   );
 }

@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-slate-50 text-slate-900 antialiased">
+      <body className="text-slate-900 antialiased min-h-screen selection:bg-cyan-200 selection:text-cyan-900">
         <Providers>
           <AppLayout>{children}</AppLayout>
         </Providers>

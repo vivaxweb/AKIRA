@@ -205,7 +205,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
 
 class SimilarityCheckRequestSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=255)
-    abstract = serializers.CharField()
+    abstract = serializers.CharField(required=False, allow_blank=True, default="")
     exclude_project_id = serializers.IntegerField(required=False, allow_null=True, default=None)
 
 

@@ -25,16 +25,21 @@ from .services import import_students_from_csv
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         username = attrs.get(self.username_field)
-        if username and "@" not in str(username):
-            from .models import StudentProfile, FacultyProfile
+        if username:
             clean_username = str(username).strip()
-            student = StudentProfile.objects.filter(roll_no__iexact=clean_username).select_related("user").first()
-            if student:
-                attrs[self.username_field] = student.user.email
+            if "@" in clean_username:
+                user_match = User.objects.filter(email__iexact=clean_username).first()
+                if user_match:
+                    attrs[self.username_field] = user_match.email
             else:
-                faculty = FacultyProfile.objects.filter(employee_id__iexact=clean_username).select_related("user").first()
-                if faculty:
-                    attrs[self.username_field] = faculty.user.email
+                from .models import StudentProfile, FacultyProfile
+                student = StudentProfile.objects.filter(roll_no__iexact=clean_username).select_related("user").first()
+                if student:
+                    attrs[self.username_field] = student.user.email
+                else:
+                    faculty = FacultyProfile.objects.filter(employee_id__iexact=clean_username).select_related("user").first()
+                    if faculty:
+                        attrs[self.username_field] = faculty.user.email
 
         data = super().validate(attrs)
         # Add basic user details into login response so client can route immediately

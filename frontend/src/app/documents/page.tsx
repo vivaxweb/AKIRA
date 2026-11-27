@@ -33,7 +33,7 @@ const CATEGORIES: { label: string; value: string }[] = [
   { label: "Templates", value: "TEMPLATE" },
   { label: "Lab Manuals", value: "LAB_MANUAL" },
   { label: "Question Papers", value: "QUESTION_PAPER" },
-  { label: "Accreditation", value: "ACCREDITATION" },
+  { label: "Institutional Records", value: "ACCREDITATION" },
 ];
 
 export default function DocumentLibraryPage() {
@@ -333,7 +333,7 @@ export default function DocumentLibraryPage() {
                   <option value="TEMPLATE">Format &amp; Template</option>
                   <option value="LAB_MANUAL">Lab Manual</option>
                   <option value="QUESTION_PAPER">Question Paper / Bank</option>
-                  <option value="ACCREDITATION">Accreditation Document</option>
+                  <option value="ACCREDITATION">Institutional Record</option>
                   <option value="OTHER">Other</option>
                 </Select>
               </div>
