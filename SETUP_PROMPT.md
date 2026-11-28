@@ -1,13 +1,13 @@
-# AKIRA (Department Digital Hub) — Antigravity Automated Setup Prompt
+# EduSync (Academic Hub) — Antigravity Automated Setup Prompt
 
 > **Usage**: When you or a teammate clone this repository and open it in Antigravity, simply copy the entire prompt below and paste it into the Antigravity chat. The agent will autonomously configure the backend virtual environment, install packages, create `.env` files, run migrations, seed the complete academic dataset, install frontend packages, and verify the health of all services.
 
 ---
 
 ```markdown
-# TASK: Complete Automated Environment Setup & Verification for AKIRA (Department Digital Hub)
+# TASK: Complete Automated Environment Setup & Verification for EduSync (Academic Hub)
 
-You are tasked with setting up the entire development environment for the cloned repository **AKIRA (Department Digital Hub)**. Ensure the backend and frontend are properly configured, all dependencies are installed, environment files are generated, the database is migrated and populated with demo seed data, and both services are verified to run without errors.
+You are tasked with setting up the entire development environment for the cloned repository **EduSync (Academic Hub)**. Ensure the backend and frontend are properly configured, all dependencies are installed, environment files are generated, the database is migrated and populated with demo seed data, and both services are verified to run without errors.
 
 ---
 

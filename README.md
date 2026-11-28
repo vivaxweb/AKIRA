@@ -1,4 +1,4 @@
-# AKIRA — Department Digital Hub
+# EduSync — Academic Hub
 
 A centralized, enterprise-grade web platform for academic operations, student and faculty intelligence, capstone project repository with NLP duplicate-idea detection, role-scoped communication, accreditation and report generation, and an AI knowledge assistant for college engineering departments.
 
