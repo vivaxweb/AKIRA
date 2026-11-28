@@ -155,10 +155,12 @@ export default function LoginPage() {
       if (!msg) {
         const errObj = err as { message?: string; name?: string };
         if (err instanceof TypeError || errObj?.message?.includes("fetch") || errObj?.name === "TypeError") {
-          msg = "Backend server unreachable. Please make sure the Django backend is running at http://localhost:8000.";
+          msg = "Backend server unreachable. Please verify Django backend is running at http://127.0.0.1:8000.";
         } else {
-          msg = "Invalid login credentials. Please check your username and password.";
+          msg = "Invalid login credentials. Please check your username and password or click a Quick Demo role below.";
         }
+      } else if (msg === "No active account found with the given credentials") {
+        msg = "Invalid email or password. Please verify your credentials or click a Quick Demo role below.";
       }
       setErrorMessage(msg);
       toastError("Login Failed", msg);

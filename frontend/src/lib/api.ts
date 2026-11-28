@@ -105,7 +105,16 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
     headers.set("Authorization", `Bearer ${memoryAccessToken}`);
   }
 
-  let response = await fetch(url, { ...options, headers });
+  let response: Response;
+  try {
+    response = await fetch(url, { ...options, headers });
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    throw {
+      detail: `Backend server unreachable at ${url}. Please ensure the Django backend is running at http://127.0.0.1:8000. (${errorMsg})`,
+      code: "backend_unreachable",
+    } as ApiError;
+  }
 
   // Handle 401 with silent refresh
   if (response.status === 401 && !endpoint.includes("/auth/login/") && !endpoint.includes("/auth/refresh/")) {
